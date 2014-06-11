@@ -1,4 +1,4 @@
-window.onload = function(){
+
 var RConsole = {
 	createButton: function(aValue,anId,attributes){
 
@@ -18,6 +18,7 @@ var RConsole = {
 		var attr_stop = {'disabled':true, 'hidden':false };
 		var iStop_recorder = this.createButton('Stop','stop_record',attr_stop);
 		iStop_recorder.addEventListener("click", this.clickStop , false); 
+		console.debug(iStop_recorder.nodeName);
 		return iStop_recorder;
 	 }
 	 ,createPlayButton: function(){
@@ -26,76 +27,110 @@ var RConsole = {
 		iPlay_recorder.addEventListener("click", this.clickPlay , false); 
 		return iPlay_recorder;
 	 }
+	 ,createRecordButton: function(){
+
+		console.debug('3. crea boton Record');
+		var iRecord_recorder = this.createButton('Record','start_record',null);
+		iRecord_recorder.addEventListener("click",this.clickRecord, false); 
+		return iRecord_recorder;
+	 }
+	 ,createClearButton: function(){
+	 	console.debug('4. crea boton Clear');
+		var clear = this.createButton('Clear','clear',null);
+		clear.onclick = function(){
+		localStorage.clear();
+		document.getElementById("table_consola").innerHTML = "";
+		}; 
+		return clear;
+	 }
+	 ,createShowLocalStorageButton: function(){
+		var load = document.createElement('input');
+		load.type = "button";
+		load.value = "LS";
+		load.id = "load";
+
+		load.onclick = function(){  
+									//console.log("Contenido:");
+									//console.debug(localStorage);
+									//console.debug("Tamano:");
+									//console.debug(localStorage.length);
+								};
+	     return load;
+		 }
+	 ,createSelectAddTasks: function(){
+
+		console.debug('5. crea Select Tasks');
+		var sAddTask = document.createElement('select');
+		sAddTask.setAttribute('id','add_task');
+	 	var j;
+	 	var aOptions=['Add Task','Primitive Task','Augmented Task'];
+		for (j = 0; j < aOptions.length; j = j + 1) {
+			opt = document.createElement('option');
+			opt.value = j;
+			if(j===0){opt.disabled = true;opt.selected = true;} 
+			opt.innerHTML = aOptions[j];
+			sAddTask.appendChild(opt);
+		}
+		sAddTask.addEventListener("change", this.addTask , false); 
+
+		return sAddTask;
+	 }
 	 ,createHeaderContainer: function(){
-		
+		console.debug('7. Crea el div consola');		
 		var div_consola = document.createElement("div");
-		
+			div_consola.id = "div_consola";		
+			div_consola.style.cssText = "overflow:scroll;    z-index: 300;   position: fixed;        left: 0px;      width: auto;        height: 100%;       border: solid 1px #e1e1e1;      vertical-align: middle;         background: #ffdab9;  text-align: center;";
 		return div_consola;
+
+	 }
+	 ,createHeader: function(){
+	 	console.debug('8. Crea el div consola header');
+		var div_consola_header = document.createElement("div");
+		div_consola_header.id = "consola_header"
+		return div_consola_header;
+	 }
+	 ,createTableContainer: function(){
+	 	console.debug('9. Crea el div consola table');
+		var div_table_consola = document.createElement("div");
+		div_table_consola.id =  "div_table_consola";
+		return div_table_consola;
+	 }
+	 ,createTable: function(){
+		console.debug('10. Crea la tabla contenedora de la consola');
+		var table_consola = document.createElement("table")
+		table_consola.id = "table_consola"
+		return table_consola;
 	 }
 	 ,init: function(){
 
 	 	var stopButton = this.createStopButton();
 	 	var playButton = this.createPlayButton();
+	 	var recordButton = this.createRecordButton();
+	 	var clearButton = this.createClearButton(); 
+	 	var loadButton = this.createShowLocalStorageButton();
+
 		var container = this.createHeaderContainer();
 	 	container.appendChild(playButton);
 	 	container.appendChild(stopButton);
+	 	container.appendChild(recordButton);
+	 	container.appendChild(clearButton);
+	 	container.appendChild(loadButton);
 
 	 	var body   = document.body || document.getElementsByTagName('body')[0];
 	 	
 	 	body.appendChild(container);
 	 }
 }
-RConsole.init();
-console.debug(RConsole);
+//RConsole.init();
+//console.debug(RConsole);
+window.onload = function(){
+	var rconsole = Object.create(RConsole);
+	rconsole.init();
 }
 
 
 /*
 	,createHeaderConsole: function(){
-	
-	
-	
-	
-
-	console.debug('3. crea boton Recorder');
-	var iRecord_recorder = this.createButton('Record','start_record',null);
-	iRecord_recorder.addEventListener("click",this.clickRecord, false); 
-
-	console.debug('4. crea boton Clear');
-	var clear = this.createButton('Clear','clear',null);
-	clear.onclick = function(){
-	localStorage.clear();
-	document.getElementById("table_consola").innerHTML = "";
-	}; 
-	console.debug('5. crea Select Tasks');
-	var sAddTask = document.createElement('select');
-	sAddTask.setAttribute('id','add_task');
- 	var j;
- 	var aOptions=['Add Task','Primitive Task','Augmented Task'];
-	for (j = 0; j < aOptions.length; j = j + 1) {
-		opt = document.createElement('option');
-		opt.value = j;
-		if(j===0){opt.disabled = true;opt.selected = true;} 
-		opt.innerHTML = aOptions[j];
-		sAddTask.appendChild(opt);
-	}
-	sAddTask.addEventListener("change", this.addTask , false); 
-
-	
-
-	var load = document.createElement('input');
-	load.type = "button";
-	load.value = "LS";
-	load.id = "load";
-
-	load.onclick = function(){  
-								//console.log("Contenido:");
-								//console.debug(localStorage);
-								//console.debug("Tamano:");
-								//console.debug(localStorage.length);
-							};
-     
-    
 
 	
 console.debug('6. trae el elemento body');
@@ -107,24 +142,8 @@ if (document.body.firstChild){
     }else{
       document.body.appendChild(div_consola);
 }
-console.debug('7. Crea el div consola');
-div_consola.id = "div_consola";
-div_consola.style.cssText = "overflow:scroll;    z-index: 300;   position: fixed;        left: 0px;      width: auto;        height: 100%;       border: solid 1px #e1e1e1;      vertical-align: middle;         background: #ffdab9;  text-align: center;";
 
-    var b = document.getElementsByTagName("body");
-    //console.debug(b[0].childNodes);
-    console.debug('8. Crea el div consola header');
-	var div_consola_header = document.createElement("div");
-	div_consola_header.id = "consola_header"
-	
-	console.debug('9. Crea el div consola table');
-	var div_table_consola = document.createElement("div");
-	div_table_consola.id =  "div_table_consola";
-	
-	
-	console.debug('10. Crea la tabla contenedora de la consola');
-	var table_consola = document.createElement("table")
-	table_consola.id = "table_consola"
+
 	
 	console.debug('11. agrega botones a consola header');
 	div_consola_header.appendChild(iRecord_recorder);	
