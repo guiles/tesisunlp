@@ -1,8 +1,8 @@
 
 var RConsole = {
-	createButton: function(aValue,anId,attributes){
+createButton: function(aValue,anId,attributes){
 
-		var aButton = document.createElement("input");	
+var aButton = document.createElement("input");
 	    aButton.setAttribute('type','button');
 	    aButton.setAttribute('value',aValue);
 	    aButton.setAttribute('id',anId);
@@ -49,15 +49,12 @@ var RConsole = {
 		load.value = "LS";
 		load.id = "load";
 
-		load.onclick = function(){  
-									//console.log("Contenido:");
-									//console.debug(localStorage);
-									//console.debug("Tamano:");
-									//console.debug(localStorage.length);
+		load.onclick = function(){	console.log("Contenido:");console.debug(localStorage);
+									console.debug("Tamano:");console.debug(localStorage.length);
 								};
 	     return load;
 		 }
-	 ,createSelectAddTasks: function(){
+	 ,createaddTasksSelect: function(){
 
 		console.debug('5. crea Select Tasks');
 		var sAddTask = document.createElement('select');
@@ -101,66 +98,9 @@ var RConsole = {
 		table_consola.id = "table_consola"
 		return table_consola;
 	 }
-	 ,init: function(){
+	 ,createShowHide: function(){
 
-	 	var stopButton = this.createStopButton();
-	 	var playButton = this.createPlayButton();
-	 	var recordButton = this.createRecordButton();
-	 	var clearButton = this.createClearButton(); 
-	 	var loadButton = this.createShowLocalStorageButton();
-
-		var container = this.createHeaderContainer();
-	 	container.appendChild(playButton);
-	 	container.appendChild(stopButton);
-	 	container.appendChild(recordButton);
-	 	container.appendChild(clearButton);
-	 	container.appendChild(loadButton);
-
-	 	var body   = document.body || document.getElementsByTagName('body')[0];
-	 	
-	 	body.appendChild(container);
-	 }
-}
-//RConsole.init();
-//console.debug(RConsole);
-window.onload = function(){
-	var rconsole = Object.create(RConsole);
-	rconsole.init();
-}
-
-
-/*
-	,createHeaderConsole: function(){
-
-	
-console.debug('6. trae el elemento body');
-var body   = document.body || document.getElementsByTagName('body')[0];
-var div_consola = document.createElement("div");
-
-if (document.body.firstChild){
-      document.body.insertBefore(div_consola, document.body.firstChild);
-    }else{
-      document.body.appendChild(div_consola);
-}
-
-
-	
-	console.debug('11. agrega botones a consola header');
-	div_consola_header.appendChild(iRecord_recorder);	
-	div_consola_header.appendChild(iStop_recorder);
-	div_consola_header.appendChild(iPlay_recorder);	
-	div_consola_header.appendChild(load);
-	div_consola_header.appendChild(clear);
-	div_consola_header.appendChild(sAddTask);
-
-	console.debug('12. Agrega consola header y table consola al div de la consola');
-	div_consola.appendChild(div_consola_header); 
-	div_consola.appendChild(div_table_consola);
-
-	console.debug('13. Agrega tabla contenedora al div table consola');
-	div_table_consola.appendChild(table_consola);
-
-  	console.debug('14. crea el div para la solapa show/hide');
+	console.debug('14. crea el div para la solapa show/hide');
 	//Agrego la solapa para mostrar/ocultar
 	var div_pestana = document.createElement("div");
 	div_pestana.id =  "div_pestana"; 
@@ -188,9 +128,204 @@ if (document.body.firstChild){
 
 	div_pestana.appendChild(input_label);
 
-	console.debug('15. Agrega la pestana show/hide');
-    var body = document.getElementsByTagName('body')[0];
-	body.appendChild(div_pestana); 
-    body.style.marginLeft = "400px";
+	return div_pestana;
+	 }
+	 ,init: function(){
 
-	}*/
+	 	var stopButton = this.createStopButton();
+	 	var playButton = this.createPlayButton();
+	 	var recordButton = this.createRecordButton();
+	 	var clearButton = this.createClearButton(); 
+	 	var addTaksSelect = this.createaddTasksSelect();
+	 	var loadButton = this.createShowLocalStorageButton();
+		
+		var container = this.createHeaderContainer();
+		var show_hide = this.createShowHide();
+		var container_header = this.createHeader();
+		var table_console_container = this.createTableContainer();
+		var table_console = this.createTable();
+
+	 	container_header.appendChild(playButton);
+	 	container_header.appendChild(stopButton);
+	 	container_header.appendChild(recordButton);
+	 	container_header.appendChild(clearButton);
+	 	container_header.appendChild(loadButton);
+	 	container_header.appendChild(addTaksSelect);
+		
+		table_console_container.appendChild(table_console);
+		container.appendChild(container_header);
+		container.appendChild(table_console_container);
+		
+
+	 	var body   = document.body || document.getElementsByTagName('body')[0];
+	 	
+	 	body.appendChild(container);
+	 	console.debug('15. Agrega la pestana show/hide');    	
+		body.appendChild(show_hide); 
+    	body.style.marginLeft = "400px";
+	 }
+}
+//RConsole.init();
+//console.debug(RConsole);
+window.onload = function(){
+	//var rconsole = Object.create(RConsole);
+	//rconsole.init();
+	RConsole.init();
+}
+
+
+/*
+	,createHeaderConsole: function(){
+
+	
+console.debug('6. trae el elemento body');
+var body   = document.body || document.getElementsByTagName('body')[0];
+var div_consola = document.createElement("div");
+
+if (document.body.firstChild){
+      document.body.insertBefore(div_consola, document.body.firstChild);
+    }else{
+      document.body.appendChild(div_consola);
+}
+
+
+}*/
+
+//===============================
+
+/**
+* @class selectElement
+*/
+var selectElement = {
+	specs:{}
+	,render: function(){
+
+		var div_select = document.createElement('div');
+		var label = document.createTextNode(this.specs.label);
+		    div_select.appendChild(label);
+		var input = document.createElement('select');
+		var len = this.specs.choices.length;
+		
+		for (var i = 0; i < len; i++) {
+		var option = document.createElement('option');
+		    option.text = this.specs.choices[i];
+		    option.value = this.specs.choices[i];
+		    input.appendChild(option);
+		}
+		    div_select.appendChild(input);
+
+	return div_select;
+	}
+}
+
+/**
+* @class inputElement
+*/
+
+var inputElement = {
+	specs:{}
+	,label:''
+	,id:''
+	,value:''
+	,render: function(){
+
+		var div_input = document.createElement('div');
+		var label = document.createTextNode(this.label);
+		    div_input.appendChild(label);
+		var input = document.createElement('input');
+		    input.type = 'text';
+		    input.id = this.id;
+		    input.value = this.value;
+		    div_input.appendChild(input);
+
+    return div_input;
+	}
+}
+/**
+* @class view
+*/
+var view = {
+      render: function(target, elements) {
+      
+      target.firstChild.innerHTML="";
+      target.innerHTML = "";
+          for (var i = 0; i < elements.length; i++) {
+	      target.appendChild(elements[i].render());
+          }
+      }
+};
+
+/**
+* @class inflater
+*/
+var inflater = {
+	properties:[]
+	,elements:[]
+	,inflate: function(){
+	var obj_properties = JSON.parse(this.properties);
+	// @TODO: refactor con lookup
+	this.elements = [];
+		for (var i = 0; i < obj_properties.atributos.length; i++) {
+		    var type_el = obj_properties.atributos[i].el_type;
+		    var el_inflator = null;
+		    switch(type_el){
+	   	    case 'input':
+			el_inflator = Object.create(inputElement);
+		    break;
+		    
+		    case 'select':
+		    el_inflator = Object.create(selectElement);
+		    break;
+		    
+		    default:
+		    return false;
+		    break;
+		    }
+
+		el_inflator.label = obj_properties.atributos[i].label;
+		el_inflator.value = obj_properties.atributos[i].value;
+		el_inflator.id =  obj_properties.atributos[i].id;
+		this.elements.push(el_inflator);  
+
+		}
+
+	return this.elements;
+	}
+}
+
+
+var editor = {
+	properties: []
+	,htmlToJson: function(el_div){
+
+	var obj_json = new Object();
+	obj_json.type = "FillInputTask";
+	obj_json.atributos = new Array();
+	var i ;
+	var childnodes = el.childNodes;
+		for (i = 0; i < childnodes.length ; i = i + 1){
+	    //mientras que sea un div ( Tiene atributos - elementos HTML)
+
+			if(childnodes[i].nodeName == 'DIV'){ 
+			  var obj_atributo = new Object();
+			  var j;
+			  var elements = childnodes[i].childNodes;
+				for (j = 0; j < elements.length ; j = j + 1){
+					//recorro otra vez el dom y armo el objeto
+					if(elements[j].nodeName == "#text"){
+					//console.debug(elements[j].textContent);
+					obj_atributo.label = elements[j].textContent;
+					}
+					if(elements[j].nodeName == "INPUT"){
+					obj_atributo.el_type = 'input';
+					obj_atributo.value = elements[j].value;
+					obj_atributo.id = elements[j].id;
+					}
+					}
+				obj_json.atributos.push(obj_atributo);
+			}
+		}
+
+	return JSON.stringify(obj_json);
+	}
+}
