@@ -10,10 +10,6 @@
  * onSelect: text, textarea
  */
 
-var TESIS = TESIS || {};
-TESIS.Manager = {};
-
-
 //bpmanager.js
 //var document = window.document;
 document.addEventListener("taskFinished", executeNext, false);
@@ -25,8 +21,8 @@ function executeNext(e) {
 	+e.detail.time.toLocaleString()+": "+e.detail.message);
 
             try{
-            	console.debug(TESIS.Manager.getNextTask());
-    				TESIS.Manager.getNextTask().execute();           
+            	console.debug(Manager.getNextTask());
+    				Manager.getNextTask().execute();           
 					}catch(err){
 					 	console.debug("error"+err+"!!!");	
 					}
@@ -36,10 +32,7 @@ function executeNext(e) {
 }
 
 
-
-
-
-TESIS.Manager = (function () {
+var Manager = (function () {
 	"use strict";
     var currentPrimitiveTasks = []; //Array de las tareas a realizar cuando se ejecuta el Manager
     var primitiveTasks = ['FillInputTask','SelectOptionTask','TextAreaTask','CheckBoxTask']; //Un array de tareas que puede realizar
@@ -414,7 +407,7 @@ var Recorder = {
 
 	return aButton;
 	}	
-	/**  
+	/*  
 	* Crea elementos HTML para manejar el recorder
 	* @method createHeaderConsole
 	*/
@@ -804,7 +797,7 @@ try{
 
     	try{
     //Tengo que saber que tipo de elemento para saber que agregar
-    TESIS.Manager.addPrimitiveTask(i,tasks.type,xpath,
+    Manager.addPrimitiveTask(i,tasks.type,xpath,
     valor,0);
         }catch(err){
         	//console.debug(err);
@@ -813,7 +806,7 @@ try{
 
           }
 
-          TESIS.Manager.start();
+          Manager.start();
 	}
 	/**  
 	* Actualiza la consola con el localStorage 
@@ -950,7 +943,15 @@ try{
   }
 
 //=========================RConsole====================
+/**
+* Crea todos los elementos de la consola
+* @class RConsole
+*/
 var RConsole = {
+	/**
+	* 
+	* @method createButton
+	*/
 	createButton: function(aValue,anId,attributes){
 
 		var aButton = document.createElement("input");	
