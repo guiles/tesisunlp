@@ -1,6 +1,5 @@
 /**
  * Tesis Ing. Guillermo A. Caserotto
- * date: 11.06.2014
  * @module Recorder
  * @main recorder
  * Eventos que voy a tratar:
@@ -9,22 +8,56 @@
  * onFocus: select, text, textarea
  * onSelect: text, textarea
  */
+ 
+
 
 //bpmanager.js
 //var document = window.document;
 document.addEventListener("taskFinished", executeNext, false);
 // Metodo que selecciona tareas del array del Manager
 // y las ejecuta secuencialmente
+
+function ejecutaProximaTareaTimer(){
+
+var arr_tareas =  Manager.getCurrentPrimitiveTasks();
+
+setTimeout(function () {    
+
+	  var indice = Manager.getIndice();		
+      arr_tareas[indice].execute();
+
+      if (indice < arr_tareas.length) { 
+	      Manager.incrementIndice();                     
+          ejecutaProximaTareaTimer();  
+      }else{
+      	return false;
+      }                        
+   }, 1500)
+}
+
+function highlightElement(obj){
+   var orig = obj.style.outline;
+   //obj.style.outline = "0.25em solid #FFFF00";
+   obj.classList.add("cssClass");
+   setTimeout(function(){
+   		obj.classList.remove("cssClass");
+   }, 1500);
+}
+
 function executeNext(e) {
 	//var taskId = e.detail.taskId;
-	console.debug("Evento: "+e.currentTarget.nodeName+", "
-	+e.detail.time.toLocaleString()+": "+e.detail.message);
+/*	console.debug("Evento: "+e.currentTarget.nodeName+", "
+	+e.detail.time.toLocaleString()+": "+e.detail.message);*/
 
-            try{
-            	console.debug(Manager.getNextTask());
-    				Manager.getNextTask().execute();           
+
+            	try{
+            		var next_task = Manager.getNextTask();
+
+
+    				next_task.execute();           
+					
 					}catch(err){
-					 	console.debug("error"+err+"!!!");	
+					 	//console.debug("error"+err+"!!!");	
 					}
                
 
@@ -36,7 +69,7 @@ var Manager = (function () {
 	"use strict";
     var currentPrimitiveTasks = []; //Array de las tareas a realizar cuando se ejecuta el Manager
     var primitiveTasks = ['FillInputTask','SelectOptionTask','TextAreaTask','CheckBoxTask']; //Un array de tareas que puede realizar
-
+    var indice;
         function subscribe(aPrimitiveTask){ //Este metodo por ahora solo agrega el objeto 
          currentPrimitiveTasks.push(aPrimitiveTask);
         }
@@ -61,26 +94,55 @@ var Manager = (function () {
         }
         
     	return {
-      
-           	getNextTask : function(){ //Me trae la proxima tarea pendiente
-           		console.debug("cantidad de tareas");
-           		console.debug(currentPrimitiveTasks.length);
+		     incrementIndice: function(){
+				this.indice = this.indice + 1;
+		     }
+		     ,getIndice: function(){
+				return this.indice;
+		     }
+		     ,setIndice:function(val){
+		     	this.indice = val;	
+		      }
+           	,getNextTask : function(){ //Me trae la proxima tarea pendiente
+           		console.debug("Trae la siguiente tarea");
+           		//console.debug(currentPrimitiveTasks.length);
            		var i;
     	for (i = 0;i < currentPrimitiveTasks.length;i=i+1){
     		   
                
                if(currentPrimitiveTasks[i].getState() === 0 ) { 
-						
         return currentPrimitiveTasks[i]; 
                }else{
-               	console.debug("Esto esta mal");
-						console.debug(i);
+               	//console.debug("Esto esta mal");
+						//console.debug(i);
+               }
+    	}
+        	}
+        	    ,getNextTaskTimer : function(){ //Me trae la proxima tarea pendiente
+           		console.debug("Trae la siguiente tarea");
+           		//console.debug(currentPrimitiveTasks.length);
+           		var i;
+    	for (i = 0;i < currentPrimitiveTasks.length;i=i+1){
+    		   
+               
+               if(currentPrimitiveTasks[i].getState() === 0 ) { 
+        return currentPrimitiveTasks[i]; 
+               }else{
+               	//console.debug("Esto esta mal");
+						//console.debug(i);
                }
     	}
         	}
         	,start: function(){
-       	 if(currentPrimitiveTasks.length > 0){currentPrimitiveTasks[0].execute();}
-        	currentPrimitiveTasks[0].execute();
+		this.setIndice(0);
+		console.debug('vuelve a cero el indice');
+		console.debug(this.getIndice());
+		ejecutaProximaTareaTimer();
+       	 //Comentado para probar lo que esta arriba
+       	 /*if(currentPrimitiveTasks.length > 0){currentPrimitiveTasks[0].execute();}
+        	currentPrimitiveTasks[0].execute();*/
+
+
         	}       
         	,clearCurrentPrimitiveTasks: function(){
         currentPrimitiveTasks=[];
@@ -143,8 +205,9 @@ PrimitiveTask.prototype.execute = function(){
     var iterator = document.evaluate(this.xPath,document,null,0,null);
     var node = iterator.iterateNext();
     //Supongo que todas las tareas son manuales ( o sea, ingreso valor)
-    console.debug(node);
-   
+    //node.backgroundColor = "rgba(255, 255, 0, 0.25)";
+    //node.style.outline = "";
+
     if(this.tipo == 1){ //Si es Manual, pide valor
 
     node.focus();
@@ -152,24 +215,44 @@ PrimitiveTask.prototype.execute = function(){
     node.value= value;
 
     }else{
+    	console.debug("Ejecuta esta tarea dentro del objeto");
 
-        node.value= this.value;    
+    	
+		//node.classList.add("cssClass");
+		//node.setAttribute('class','cssClass');
 
+        //node.style.outline = "0.25em solid #FFFF00";
+        highlightElement(node)
+        node.value= this.value;   
+        //console.debug(node);
+ 
+	
     }
 
     
-    this.finalizo();
+    //this.finalizo();
 
     return node;
 }
 
 PrimitiveTask.prototype.finalizo = function(){
+	
+	//=================================
+    var iterator = document.evaluate(this.xPath,document,null,0,null);
+    var node = iterator.iterateNext();
+    //Supongo que todas las tareas son manuales ( o sea, ingreso valor)
+    //console.debug("saco estilo");
+    
+    //node.backgroundColor = "";
+    //node.style.outline = "";
+
+    //===================================
 
 	this.setState(1);  // No se para que uso esto si lo saco del array o modifico el estado
 
 	var event = new CustomEvent("taskFinished", {detail: {taskId: this.id , message: this.msg,
 					time: new Date(),},bubbles: true,cancelable: true});
-
+				
 	document.dispatchEvent(event);
 }
 
@@ -245,12 +328,14 @@ TextAreaTask.prototype = new PrimitiveTask();
 
 window.onload = function(){
 
+
+
 var css_styles = {
 	class_button:"background-color: #24890d;border: 0;border-radius: 2px;color: #fff;font-size: 12px;font-weight: 700;padding: 10px 30px 11px;text-transform: uppercase;vertical-align: bottom;"
 };
 //Agrego los estilos para el plugin
 //@TODO: realizar una clase que maneje y englobe
-var css = " .class_button { background-color: #24890d; border: 0; border-radius: 2px; color: #fff; font-size: 12px; font-weight: 700; padding: 10px 30px 11px; text-transform: uppercase;vertical-align: bottom;}  ";
+var css = " .class_button { background-color: #24890d; border: 0; border-radius: 2px; color: #fff; font-size: 12px; font-weight: 700; padding: 10px 30px 11px; text-transform: uppercase;vertical-align: bottom;} .cssClass{ outline: 0.25em solid #FFFF00;} ";
  var   head = document.head || document.getElementsByTagName('head')[0],
     style = document.createElement('style');
 
@@ -266,7 +351,7 @@ head.appendChild(style);
 
 
 var write_localStorage = function(task,xPath,value,taskType){
-console.debug('write_localStorage');
+//console.debug('write_localStorage');
 
 
 	 // var some_properties = '{"type": "FillInputTask","atributos": [{"label": "xPath","el_type": "input","value": "/html/","id": "id_xpath"}
@@ -306,7 +391,7 @@ console.debug('write_localStorage');
 */
 var eventoChange = function(event){
 
-    	console.debug("Empieza a grabar registroEventoChange");
+    	//console.debug("Empieza a grabar registroEventoChange");
     
 		//Temporal, para asignarle si es tarea automatica, deberia ir en la consola
 		var tipo = 0;
@@ -316,9 +401,9 @@ var eventoChange = function(event){
 		if(el_id){
 		var sxPath = '//*[@id="'+el_id+'"]';
 		}else{ //Si no tiene ID tengo que ver la manera de sacar el absoluto
-		console.debug("no tiene id, saco el absoluto, uso el ejemplo de stack");
+		//console.debug("no tiene id, saco el absoluto, uso el ejemplo de stack");
 		var sxPath = Recorder.createXPathFromElement(event.target) ;
-		console.debug(sxPath);
+		//console.debug(sxPath);
 		}
 
 		//Guardo en el JSON compartido que sirve para el recorder.
@@ -342,7 +427,7 @@ var eventoChange = function(event){
 		case 'INPUT':
 
 		//temporal para ver si funciona
-        console.debug('entra a input');
+        //console.debug('entra a input');
 		if(event.target.type=='radio'){ 
 		var obj = new Object();
 		obj.type = "RadioTask";
@@ -407,139 +492,6 @@ var Recorder = {
 
 	return aButton;
 	}	
-	/*  
-	* Crea elementos HTML para manejar el recorder
-	* @method createHeaderConsole
-	*/
-	/*,createHeaderConsole: function(){
-	
-	console.debug('1. crea boton Stop');
-	var attr_stop = {'disabled':true, 'hidden':true };
-	var iStop_recorder = this.createButton('Stop','stop_record',attr_stop);
-	iStop_recorder.addEventListener("click", this.clickStop , false); 
-	
-	console.debug('2. crea boton Play');
-	var iPlay_recorder = this.createButton('Play','play_procedure',null);
-	iPlay_recorder.addEventListener("click", this.clickPlay , false); 
-
-	console.debug('3. crea boton Recorder');
-	var iRecord_recorder = this.createButton('Record','start_record',null);
-	iRecord_recorder.addEventListener("click",this.clickRecord, false); 
-
-	console.debug('4. crea boton Clear');
-	var clear = this.createButton('Clear','clear',null);
-	clear.onclick = function(){
-	localStorage.clear();
-	document.getElementById("table_consola").innerHTML = "";
-	}; 
-	console.debug('5. crea Select Tasks');
-	var sAddTask = document.createElement('select');
-	sAddTask.setAttribute('id','add_task');
- 	var j;
- 	var aOptions=['Add Task','Primitive Task','Augmented Task'];
-	for (j = 0; j < aOptions.length; j = j + 1) {
-		opt = document.createElement('option');
-		opt.value = j;
-		if(j===0){opt.disabled = true;opt.selected = true;} 
-		opt.innerHTML = aOptions[j];
-		sAddTask.appendChild(opt);
-	}
-	sAddTask.addEventListener("change", this.addTask , false); 
-
-	
-
-	var load = document.createElement('input');
-	load.type = "button";
-	load.value = "LS";
-	load.id = "load";
-
-	load.onclick = function(){  
-								//console.log("Contenido:");
-								//console.debug(localStorage);
-								//console.debug("Tamano:");
-								//console.debug(localStorage.length);
-							};
-     
-    
-
-	
-console.debug('6. trae el elemento body');
-var body   = document.body || document.getElementsByTagName('body')[0];
-var div_consola = document.createElement("div");
-
-if (document.body.firstChild){
-      document.body.insertBefore(div_consola, document.body.firstChild);
-    }else{
-      document.body.appendChild(div_consola);
-}
-console.debug('7. Crea el div consola');
-div_consola.id = "div_consola";
-div_consola.style.cssText = "overflow:scroll;    z-index: 300;   position: fixed;        left: 0px;      width: auto;        height: 100%;       border: solid 1px #e1e1e1;      vertical-align: middle;         background: #ffdab9;  text-align: center;";
-
-    var b = document.getElementsByTagName("body");
-    //console.debug(b[0].childNodes);
-    console.debug('8. Crea el div consola header');
-	var div_consola_header = document.createElement("div");
-	div_consola_header.id = "consola_header"
-	
-	console.debug('9. Crea el div consola table');
-	var div_table_consola = document.createElement("div");
-	div_table_consola.id =  "div_table_consola";
-	
-	
-	console.debug('10. Crea la tabla contenedora de la consola');
-	var table_consola = document.createElement("table")
-	table_consola.id = "table_consola"
-	
-	console.debug('11. agrega botones a consola header');
-	div_consola_header.appendChild(iRecord_recorder);	
-	div_consola_header.appendChild(iStop_recorder);
-	div_consola_header.appendChild(iPlay_recorder);	
-	div_consola_header.appendChild(load);
-	div_consola_header.appendChild(clear);
-	div_consola_header.appendChild(sAddTask);
-
-	console.debug('12. Agrega consola header y table consola al div de la consola');
-	div_consola.appendChild(div_consola_header); 
-	div_consola.appendChild(div_table_consola);
-
-	console.debug('13. Agrega tabla contenedora al div table consola');
-	div_table_consola.appendChild(table_consola);
-
-  	console.debug('14. crea el div para la solapa show/hide');
-	//Agrego la solapa para mostrar/ocultar
-	var div_pestana = document.createElement("div");
-	div_pestana.id =  "div_pestana"; 
-	div_pestana.style.cssText = "display: inline-block;background: #37abc8;opacity: 0.67;position: fixed;right: 0;bottom: 3.2em;z-index: 100;font-size: 14px;font-family: Helvetica, arial, freesans, clean, sans-serif;" ;
-	
-	var input_label = document.createElement("input");
-	input_label.type = "button";
-	input_label.style.cssText = "background-color: #24890d; border: 0; border-radius: 2px; color: #fff; font-size: 12px; font-weight: 700; padding: 10px 30px 11px; text-transform: uppercase;vertical-align: bottom;";
-	input_label.value ="show/hide";
-	input_label.id ="toc-label";
-	input_label.onclick = function(){ 
-
-	var div_consola = document.getElementById('div_consola');
-	
-	   if(div_consola.style.visibility=='visible'){
-
-		div_consola.style.visibility = "hidden";
-		body.style.marginLeft = "";
-		}else{
-
-		div_consola.style.visibility = "visible";
-		body.style.marginLeft = "400px";
-		}
-	};
-
-	div_pestana.appendChild(input_label);
-
-	console.debug('15. Agrega la pestana show/hide');
-    var body = document.getElementsByTagName('body')[0];
-	body.appendChild(div_pestana); 
-    body.style.marginLeft = "400px";
-
-	}*/
 	/**  
 	* Crea elementos HTML para manejar la edicion de las tareas
 	* @method createEditionContaniner   
@@ -564,7 +516,7 @@ div_consola.style.cssText = "overflow:scroll;    z-index: 300;   position: fixed
 	* @method addTask    
 	*/
 	,addTask: function() {
-		//console.debug();
+		////console.debug();
 		var that = this;
 				var save_task = document.createElement("input");
 				save_task.type = "button";
@@ -591,24 +543,23 @@ div_consola.style.cssText = "overflow:scroll;    z-index: 300;   position: fixed
 				};
 		//instancio la vista ... podria sacar de constantes los elementos basicos
 		var add_task = Object.create(inflater);
-		add_task.properties = [{type:'selectElement',specs:{label:"Type",choices: ['FillInputTask', 'TextAreaTask']}},
-		{type:'inputElement',specs:{label:'xPath',valor:"an xPath",id:"input_xpath"}},
-		{type:'inputElement',specs:{label:'Value',valor:"a value for xPath"}}
-		,{type:'selectElement',specs:{label:"Auto",choices: ['Yes', 'No']}}];	
-		
+		add_task.properties = '{"type":"FillInputTask","atributos":[{"label":"xPath","el_type":"input","value":"/html[1]/body[1]/div[2]/form[1]/input[2]","id":"id_xpath"},{"label":"Valor","el_type":"input","value":"333","id":"id_value"}]}';
+		////console.debug(add_task.properties);
+		//{type:'selectElement',specs:{label:"Type",choices: ['FillInputTask', 'TextAreaTask']}},
+		//,{type:'selectElement',specs:{label:"Auto",choices: ['Yes', 'No']}}
 		//instancio la vista ... podria sacar de constantes los elementos basicos
-		var add_augmenter = Object.create(inflater);
+		/*var add_augmenter = Object.create(inflater);
 		add_augmenter.properties = [{type:'selectElement',specs:{label:"Type",choices: ['Augmenter 1', 'Augmenter 2']}},
 		{type:'inputElement',specs:{label:'xPath',valor:"an xPath"}},
 		{type:'inputElement',specs:{label:'Value',valor:"a value for xPath"}}
-		,{type:'selectElement',specs:{label:"Auto",choices: ['Yes', 'No']}}];	
+		,{type:'selectElement',specs:{label:"Auto",choices: ['Yes', 'No']}}];	*/
 		
 		//Agrego el augmenter aca, hacer un metodo nuevo y dividir responsabilidades
 		el = document.getElementById("div_overlay");
         el.style.visibility = "visible";	   
-        var table_edit = document.getElementById("table_edit");
-
-		(this.value === "1") ? view.render(table_edit, add_task.inflate()) : view.render(table_edit, add_augmenter.inflate());
+      //  var table_edit = document.getElementById("table_edit");
+//view.render(el, edit_task.inflate());
+		(this.value === "1") ? view.render(el, add_task.inflate()) : view.render(el, add_augmenter.inflate());
 
 		var close_edit = document.createElement("input");
 		close_edit.type = "button";
@@ -623,9 +574,10 @@ div_consola.style.cssText = "overflow:scroll;    z-index: 300;   position: fixed
 	 	  el.style.visibility = (el.style.visibility == "visible") ? "hidden" : "visible";
 	  	  that.firstChild.selected = true;
 	 	};
+
 	 	//Agrego al final los dos botones
-		table_edit.appendChild(save_task);
-		table_edit.appendChild(close_edit);
+		el.appendChild(save_task);
+		el.appendChild(close_edit);
 
 	  	var select_xpath = document.getElementById("input_xpath");
 
@@ -636,7 +588,7 @@ div_consola.style.cssText = "overflow:scroll;    z-index: 300;   position: fixed
 		select_xpath.id = "select_xpath";
 		select_xpath.value = "X";
 		//select_xpath.setAttribute('class','class_button');
-
+	 	el.appendChild(select_xpath);
 		select_xpath.onclick = function(){ 
 	  
 	  
@@ -644,16 +596,16 @@ div_consola.style.cssText = "overflow:scroll;    z-index: 300;   position: fixed
 
 	  		//Para ver que ande el highlighter
 	 	 var input_xpath = document.getElementById("input_xpath");
-	 	 // //console.debug(input_xpath.parentNode);
+	 	 // ////console.debug(input_xpath.parentNode);
 
-	 	 console.debug('trae input_xpath');
+	 	 //console.debug('trae input_xpath');
 		 var high = new Highlighter();
 	
 		
 		 if(select_xpath.value=='X'){
 		 	    	 high.init();
 		 	    	 select_xpath.value = "-"
-		 	    	 //console.debug(input_xpath);
+		 	    	 ////console.debug(input_xpath);
 
 		 }else{
 		 	    	 high.stop();
@@ -663,11 +615,11 @@ div_consola.style.cssText = "overflow:scroll;    z-index: 300;   position: fixed
 	 	};
 
 	 var input_xpath = document.getElementById("input_xpath");
-	// console.debug('nananana');
+	// //console.debug('nananana');
 	 var temp = input_xpath.parentNode;
 
 	 temp.appendChild(select_xpath);
-	 //console.debug(temp);
+	 ////console.debug(temp);
 
 	//	table_edit.appendChild(select_xpath);
 
@@ -692,10 +644,10 @@ div_consola.style.cssText = "overflow:scroll;    z-index: 300;   position: fixed
 	  
 	var json_task = localStorage.getItem(table_row.id);
 	var obj_task = JSON.parse(json_task);
-	//console.debug("Tipo de tarea:");
-	//console.debug(obj_task.type);
+	////console.debug("Tipo de tarea:");
+	////console.debug(obj_task.type);
 	var fill_input_task = new FillInputTask();
-	//console.debug(fill_input_task);
+	////console.debug(fill_input_task);
 	//Esto es lo que trae del registro seleccionado
 	
 	var edit_task = Object.create(inflater);
@@ -723,7 +675,7 @@ div_consola.style.cssText = "overflow:scroll;    z-index: 300;   position: fixed
 	
 	var ed = Object.create(editor);  
 	var json_string = ed.htmlToJson(el);
-	//console.debug(json_string);
+	////console.debug(json_string);
   	
   	localStorage.setItem(table_row.id,json_string);
 	};
@@ -740,12 +692,12 @@ div_consola.style.cssText = "overflow:scroll;    z-index: 300;   position: fixed
 	
      var start_record = document.getElementById('start_record');
 	 if(start_record.value == "Record"){
-	 //console.debug('empieza a grabar');
+	 ////console.debug('empieza a grabar');
 	 document.addEventListener("change", eventoChange , false);   
 	 start_record.value = "Stop";
 	 	
 	 }else if(start_record.value == "Stop"){
-	 //console.debug("termino de grabar");	
+	 ////console.debug("termino de grabar");	
      start_record.value = "Record" ;
      document.removeEventListener("change", eventoChange, false); 
 	 }  
@@ -757,7 +709,7 @@ div_consola.style.cssText = "overflow:scroll;    z-index: 300;   position: fixed
 	*/
 	,clickStop: function(){
 	 
-	//console.debug("termino de grabar");
+	////console.debug("termino de grabar");
     document.removeEventListener("change", eventoChange, false); 
     // document.removeEventListener("click", TESIS.registroEventoClic , false); 
      var start_record = document.getElementById('start_record');
@@ -775,7 +727,8 @@ div_consola.style.cssText = "overflow:scroll;    z-index: 300;   position: fixed
 
 
           //Aca hay un error porque el wirter_localstorage es diferente al edit
-    //console.debug(localStorage);
+    ////console.debug(localStorage);
+    Manager.clearCurrentPrimitiveTasks();
     var i;
     for (i=0;i < localStorage.length ;i++){
 
@@ -787,20 +740,20 @@ try{
     var xpath = tasks.atributos[0].value;
     var valor = tasks.atributos[1].value;
 }catch(err){
-//console.debug('error atributos');
+////console.debug('error atributos');
 }
     //Agrego la tarea y el objeto se encarga de ejecutar lo que sea, con la configuracion que sea
     if(tasks.type){
-    	//console.debug('---');
-    //console.debug(tasks.type); 
-        	//console.debug('---');
+    	////console.debug('---');
+    ////console.debug(tasks.type); 
+        	////console.debug('---');
 
     	try{
     //Tengo que saber que tipo de elemento para saber que agregar
     Manager.addPrimitiveTask(i,tasks.type,xpath,
     valor,0);
         }catch(err){
-        	//console.debug(err);
+        	////console.debug(err);
         }
     }
 
@@ -826,11 +779,11 @@ try{
 		    var key = localStorage.key(i);
 		    var value = localStorage[key];
 		    //Saco solamente el tipo, despues lo puedo sacar por el localStorage <-- borrar
-			//console.debug(localStorage[i]);
+			////console.debug(localStorage[i]);
 			try{
 			var concept = JSON.parse(value).type;	
 			}catch(err){
-				//console.debug(err);
+				////console.debug(err);
 			}
 			
 
@@ -966,28 +919,28 @@ var RConsole = {
 	return aButton;
 	}
 	,createStopButton: function(){
-		console.debug('1. crea boton Stop');
+		//console.debug('1. crea boton Stop');
 		var attr_stop = {'disabled':true, 'hidden':false };
 		var iStop_recorder = this.createButton('Stop','stop_record',attr_stop);
 		iStop_recorder.addEventListener("click", Recorder.clickStop , false); 
-		console.debug(iStop_recorder.nodeName);
+		//console.debug(iStop_recorder.nodeName);
 		return iStop_recorder;
 	 }
 	 ,createPlayButton: function(){
-	 	console.debug('2. crea boton Play');
+	 	//console.debug('2. crea boton Play');
 		var iPlay_recorder = this.createButton('Play','play_procedure',null);
 		iPlay_recorder.addEventListener("click", Recorder.clickPlay , false); 
 		return iPlay_recorder;
 	 }
 	 ,createRecordButton: function(){
 
-		console.debug('3. crea boton Record');
+		//console.debug('3. crea boton Record');
 		var iRecord_recorder = this.createButton('Record','start_record',null);
 		iRecord_recorder.addEventListener("click",Recorder.clickRecord, false); 
 		return iRecord_recorder;
 	 }
 	 ,createClearButton: function(){
-	 	console.debug('4. crea boton Clear');
+	 	//console.debug('4. crea boton Clear');
 		var clear = this.createButton('Clear','clear',null);
 		clear.onclick = function(){
 		localStorage.clear();
@@ -1002,13 +955,13 @@ var RConsole = {
 		load.id = "load";
 
 		load.onclick = function(){	console.log("Contenido:");console.debug(localStorage);
-									console.debug("Tamano:");console.debug(localStorage.length);
+									//console.debug("Tamano:");//console.debug(localStorage.length);
 								};
 	     return load;
 		 }
 	 ,createaddTasksSelect: function(){
 
-		console.debug('5. crea Select Tasks');
+		//console.debug('5. crea Select Tasks');
 		var sAddTask = document.createElement('select');
 		sAddTask.setAttribute('id','add_task');
 	 	var j;
@@ -1020,12 +973,12 @@ var RConsole = {
 			opt.innerHTML = aOptions[j];
 			sAddTask.appendChild(opt);
 		}
-		sAddTask.addEventListener("change", this.addTask , false); 
+		sAddTask.addEventListener("change", Recorder.addTask , false); 
 
 		return sAddTask;
 	 }
 	 ,createHeaderContainer: function(){
-		console.debug('7. Crea el div consola');		
+		//console.debug('7. Crea el div consola');		
 		var div_consola = document.createElement("div");
 			div_consola.id = "div_consola";		
 			div_consola.style.cssText = "overflow:scroll;    z-index: 300;   position: fixed;        left: 0px;      width: auto;        height: 100%;       border: solid 1px #e1e1e1;      vertical-align: middle;         background: #ffdab9;  text-align: center;";
@@ -1033,26 +986,26 @@ var RConsole = {
 
 	 }
 	 ,createHeader: function(){
-	 	console.debug('8. Crea el div consola header');
+	 	//console.debug('8. Crea el div consola header');
 		var div_consola_header = document.createElement("div");
 		div_consola_header.id = "consola_header"
 		return div_consola_header;
 	 }
 	 ,createTableContainer: function(){
-	 	console.debug('9. Crea el div consola table');
+	 	//console.debug('9. Crea el div consola table');
 		var div_table_consola = document.createElement("div");
 		div_table_consola.id =  "div_table_consola";
 		return div_table_consola;
 	 }
 	 ,createTable: function(){
-		console.debug('10. Crea la tabla contenedora de la consola');
+		//console.debug('10. Crea la tabla contenedora de la consola');
 		var table_consola = document.createElement("table")
 		table_consola.id = "table_consola"
 		return table_consola;
 	 }
 	 ,createShowHide: function(){
 
-	console.debug('14. crea el div para la solapa show/hide');
+	//console.debug('14. crea el div para la solapa show/hide');
 	//Agrego la solapa para mostrar/ocultar
 	var div_pestana = document.createElement("div");
 	div_pestana.id =  "div_pestana"; 
@@ -1118,7 +1071,7 @@ var RConsole = {
 		    }else{
 		      document.body.appendChild(container);
 		}
-	 	console.debug('15. Agrega la pestana show/hide');    	
+	 	//console.debug('15. Agrega la pestana show/hide');    	
 		body.appendChild(show_hide); 
     	body.style.marginLeft = "400px";
 	 }
@@ -1180,8 +1133,12 @@ var inputElement = {
 var view = {
       render: function(target, elements) {
       
+      ////console.debug(target.firstChild);
+      if(target){
       target.firstChild.innerHTML="";
+
       target.innerHTML = "";
+      }
           for (var i = 0; i < elements.length; i++) {
 	      target.appendChild(elements[i].render());
           }
@@ -1196,6 +1153,8 @@ var inflater = {
 	,elements:[]
 	,inflate: function(){
 	var obj_properties = JSON.parse(this.properties);
+////console.debug(obj_properties);
+//return false;
 	// @TODO: refactor con lookup
 	this.elements = [];
 		for (var i = 0; i < obj_properties.atributos.length; i++) {
@@ -1246,7 +1205,7 @@ var editor = {
 				for (j = 0; j < elements.length ; j = j + 1){
 					//recorro otra vez el dom y armo el objeto
 					if(elements[j].nodeName == "#text"){
-					//console.debug(elements[j].textContent);
+					////console.debug(elements[j].textContent);
 					obj_atributo.label = elements[j].textContent;
 					}
 					if(elements[j].nodeName == "INPUT"){
@@ -1390,11 +1349,8 @@ var onClickHandler = function (event)
     var el = document.getElementById("input_xpath");
     el.value = xPath;
 
-    //console.debug(xPath);
+    ////console.debug(xPath);
 }
-
-
-
 
 //Inicia el Recorder
   Recorder.init();
