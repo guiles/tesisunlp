@@ -9,40 +9,13 @@
  * onSelect: text, textarea
  */
  
-
-
 //bpmanager.js
-//var document = window.document;
 document.addEventListener("taskFinished", executeNext, false);
-// Metodo que selecciona tareas del array del Manager
-// y las ejecuta secuencialmente
 
-function ejecutaProximaTareaTimer(){
+// Metodo que selecciona tareas del array del Manager y las ejecuta secuencialmente
 
-var arr_tareas =  Manager.getCurrentPrimitiveTasks();
 
-setTimeout(function () {    
 
-	  var indice = Manager.getIndice();		
-      arr_tareas[indice].execute();
-
-      if (indice < arr_tareas.length) { 
-	      Manager.incrementIndice();                     
-          ejecutaProximaTareaTimer();  
-      }else{
-      	return false;
-      }                        
-   }, 1500)
-}
-
-function highlightElement(obj){
-   var orig = obj.style.outline;
-   //obj.style.outline = "0.25em solid #FFFF00";
-   obj.classList.add("cssClass");
-   setTimeout(function(){
-   		obj.classList.remove("cssClass");
-   }, 1500);
-}
 
 function executeNext(e) {
 	//var taskId = e.detail.taskId;
@@ -70,27 +43,34 @@ var Manager = (function () {
     var currentPrimitiveTasks = []; //Array de las tareas a realizar cuando se ejecuta el Manager
     var primitiveTasks = ['FillInputTask','SelectOptionTask','TextAreaTask','CheckBoxTask']; //Un array de tareas que puede realizar
     var indice;
+    var arr_tareas;
         function subscribe(aPrimitiveTask){ //Este metodo por ahora solo agrega el objeto 
          currentPrimitiveTasks.push(aPrimitiveTask);
         }
 
-        function createFillInputTask(aId,xPath,value,aMsg,aTipo){
-        return  new FillInputTask(aId,xPath,value,aMsg,aTipo);
+        function createFillInputTask(aId,xPath,value,aMsg,aTipo,aState){
+            console.debug('crea el fill input');
+            console.debug(aState);
+            var a = new FillInputTask(aId,xPath,value,aMsg,aTipo,1);
+            console.debug(a);
+                        console.debug('crea el fill input');
+
+        return  new FillInputTask(aId,xPath,value,aMsg,aTipo,aState);
         }
-        function createSelectOptionTask(aId,xPath,value,aMsg,aTipo){
-        return new SelectOptionTask(aId,xPath,value,aMsg,aTipo);
+        function createSelectOptionTask(aId,xPath,value,aMsg,aTipo,aState){
+        return new SelectOptionTask(aId,xPath,value,aMsg,aTipo,aState);
         }
 
-        function createTextAreaTask(aId,xPath,value,aMsg,aTipo){
-        return new TextAreaTask(aId,xPath,value,aMsg,aTipo);
+        function createTextAreaTask(aId,xPath,value,aMsg,aTipo,aState){
+        return new TextAreaTask(aId,xPath,value,aMsg,aTipo,aState);
         }
 
-        function createCheckBoxTask(aId,xPath,value,aMsg,aTipo){
-        return new CheckBoxTask(aId,xPath,value,aMsg,aTipo);
+        function createCheckBoxTask(aId,xPath,value,aMsg,aTipo,aState){
+        return new CheckBoxTask(aId,xPath,value,aMsg,aTipo,aState);
         }
 
-        function createRadioTask(aId,xPath,value,aMsg,aTipo){
-        return new RadioTask(aId,xPath,value,aMsg,aTipo);
+        function createRadioTask(aId,xPath,value,aMsg,aTipo,aState){
+        return new RadioTask(aId,xPath,value,aMsg,aTipo,aState);
         }
         
     	return {
@@ -129,41 +109,68 @@ var Manager = (function () {
         return currentPrimitiveTasks[i]; 
                }else{
                	//console.debug("Esto esta mal");
-						//console.debug(i);
+			    //console.debug(i);
                }
     	}
         	}
         	,start: function(){
-		this.setIndice(0);
-		console.debug('vuelve a cero el indice');
-		console.debug(this.getIndice());
-		ejecutaProximaTareaTimer();
+		          Manager.setIndice(0);
+		          Manager.ejecutaProximaTareaTimer();
        	 //Comentado para probar lo que esta arriba
        	 /*if(currentPrimitiveTasks.length > 0){currentPrimitiveTasks[0].execute();}
         	currentPrimitiveTasks[0].execute();*/
-
-
         	}       
         	,clearCurrentPrimitiveTasks: function(){
         currentPrimitiveTasks=[];
         	}
-        	,addPrimitiveTask :  function(aId,aPrimitiveTaskType,xPath,value,msg,tipo){
-    //Este metodo reemplaza al switch
+        	,addPrimitiveTask :  function(aId,aPrimitiveTaskType,xPath,value,msg,tipo,state){
+                console.debug('estado de la tarea dentro de add');
+                console.debug(state);
+    		//Este metodo reemplaza al switch
 	    	var lookup = 
-	    	{ FillInputTask: createFillInputTask(aId,xPath,value,msg,tipo)
-	    	, SelectOptionTask: createSelectOptionTask(aId,xPath,value,msg,tipo)
-	    	, TextAreaTask: createTextAreaTask(aId,xPath,value,msg,tipo)
-	    	, CheckBoxTask: createCheckBoxTask(aId,xPath,value,msg,tipo) } 
+	    	{ FillInputTask: createFillInputTask(aId,xPath,value,msg,tipo,state)
+	    	, SelectOptionTask: createSelectOptionTask(aId,xPath,value,msg,tipo,state)
+	    	, TextAreaTask: createTextAreaTask(aId,xPath,value,msg,tipo,state)
+	    	, CheckBoxTask: createCheckBoxTask(aId,xPath,value,msg,tipo,state) } 
 	    	, def = null ;
 
 	    	lookup[aPrimitiveTaskType] ? subscribe(lookup[aPrimitiveTaskType]) : def();
 		   
-    } 
+    		} 
         	,getCurrentPrimitiveTasks: function(){
         	return currentPrimitiveTasks;
-        	}	
-        //===
-    };
+        	}
+        	,highlightElement: function(obj){
+			   var orig = obj.style.outline;
+			   //obj.style.outline = "0.25em solid #FFFF00";
+			   obj.classList.add("cssClass");
+			   setTimeout(function(){
+			   		obj.classList.remove("cssClass");
+			   }, 1500);
+			}
+			,ejecutaProximaTareaTimer: function(){
+
+            var arr_tareas =  Manager.getCurrentPrimitiveTasks();
+                
+                setTimeout(function () {    
+
+                var indice = Manager.getIndice();	
+                console.debug("estado de la tarea");
+                console.debug(arr_tareas[indice]);	
+
+                if(arr_tareas[indice].state == 0)
+                arr_tareas[indice].execute();
+                
+                    if (indice < arr_tareas.length) { 
+                    Manager.incrementIndice(); 
+                    Manager.ejecutaProximaTareaTimer();                     
+                    
+                    }else{
+                    return false;
+                    }                        
+                }, 1500);
+            }
+        };
 }());
 
 
@@ -173,12 +180,12 @@ var Manager = (function () {
  * @class PrimitiveTask
  * @constructor
  */
-function PrimitiveTask(id,xPath,value,tipo){ //Constructor
+function PrimitiveTask(id,xPath,value,tipo,state){ //Constructor
 
 this.tipo = tipo;    
 this.xPath = xPath;
 this.value = value;
-this.state = 0;
+this.state = state;
 this.id = id;
 this.msg = "PrimitiveTask"
 }
@@ -204,57 +211,44 @@ PrimitiveTask.prototype.execute = function(){
 
     var iterator = document.evaluate(this.xPath,document,null,0,null);
     var node = iterator.iterateNext();
-    //Supongo que todas las tareas son manuales ( o sea, ingreso valor)
-    //node.backgroundColor = "rgba(255, 255, 0, 0.25)";
-    //node.style.outline = "";
 
     if(this.tipo == 1){ //Si es Manual, pide valor
-
     node.focus();
     var value = prompt("Ingrese Valor","");
     node.value= value;
-
     }else{
-    	console.debug("Ejecuta esta tarea dentro del objeto");
-
-    	
-		//node.classList.add("cssClass");
-		//node.setAttribute('class','cssClass');
-
-        //node.style.outline = "0.25em solid #FFFF00";
-        highlightElement(node)
+        Manager.highlightElement(node)
         node.value= this.value;   
-        //console.debug(node);
- 
-	
     }
 
-    
-    //this.finalizo();
+    //si salio todo ok modifico el estado de la tarea ( por ahora asumo que sale ok)
+    this.finalizo(this.id);
 
     return node;
 }
 
-PrimitiveTask.prototype.finalizo = function(){
+PrimitiveTask.prototype.finalizo = function(id){
 	
-	//=================================
-    var iterator = document.evaluate(this.xPath,document,null,0,null);
-    var node = iterator.iterateNext();
-    //Supongo que todas las tareas son manuales ( o sea, ingreso valor)
-    //console.debug("saco estilo");
-    
-    //node.backgroundColor = "";
-    //node.style.outline = "";
+    var bpm = localStorage.getItem("BPM");
+    var arr_tasks = JSON.parse(bpm);
+    //recorro los objetos para buscar la tarea a editar
+    var i;
+    for(i = 0; i < arr_tasks.length; i = i + 1){
+            //console.debug(arr_tasks[i].id);
+            if( arr_tasks[i].id == id ){
+               // console.debug(arr_tasks[i]);
+                arr_tasks[i].state = 1;
 
-    //===================================
+            } 
+    }
+    localStorage.setItem("BPM",JSON.stringify(arr_tasks));  
 
-	this.setState(1);  // No se para que uso esto si lo saco del array o modifico el estado
 
-	var event = new CustomEvent("taskFinished", {detail: {taskId: this.id , message: this.msg,
+/*	var event = new CustomEvent("taskFinished", {detail: {taskId: this.id , message: this.msg,
 					time: new Date(),},bubbles: true,cancelable: true});
 				
 	document.dispatchEvent(event);
-}
+*/}
 
 /**
  * 
@@ -262,9 +256,15 @@ PrimitiveTask.prototype.finalizo = function(){
  * @class FillInputTask
  * @extends PrimitiveTask
  */
-function FillInputTask(id,xPath,value,tipo){
-    PrimitiveTask.call(this,id,xPath,value,tipo);
+ //aId,xPath,value,aMsg,aTipo,aState
+function FillInputTask(id,xPath,value,msg,tipo,state){
+    console.debug('dentro de la creacion del objeto');
+    console.debug(xPath);
+    console.debug(state);
+
+    PrimitiveTask.call(this,id,xPath,value,tipo,state);
     this.msg = "FillInputTask";
+    this.state = state;
 }
 FillInputTask.prototype = new PrimitiveTask();
 
@@ -274,8 +274,8 @@ FillInputTask.prototype = new PrimitiveTask();
  * @class CheckBoxTask
  * @constructor
  */
-function CheckBoxTask(id,xPath,value,tipo){
-    PrimitiveTask.call(this,id,xPath,value,tipo);
+function CheckBoxTask(id,xPath,value,tipo,state){
+    PrimitiveTask.call(this,id,xPath,value,tipo,state);
     this.msg = "CheckBoxTask";
 
 }
@@ -292,8 +292,8 @@ var node = iterator.iterateNext();
     return node;
 }
 
-function RadioTask(id,xPath,value,tipo){
-    PrimitiveTask.call(this,id,xPath,value,tipo);
+function RadioTask(id,xPath,value,tipo,state){
+    PrimitiveTask.call(this,id,xPath,value,tipo,state);
     this.msg = "RadioTask";
 
 }
@@ -310,14 +310,14 @@ var node = iterator.iterateNext();
     return node;
 }
 //Herencia --> PrimitiveTask
-function SelectOptionTask(id,xPath,value,tipo){
-    PrimitiveTask.call(this,id,xPath,value,tipo);
+function SelectOptionTask(id,xPath,value,tipo,state){
+    PrimitiveTask.call(this,id,xPath,value,tipo,state);
     this.msg = "SelectOptionTask";
 }
 SelectOptionTask.prototype = new PrimitiveTask();
 //Herencia --> PrimitiveTask
-function TextAreaTask(id,xPath,value,tipo){
-    PrimitiveTask.call(this,id,xPath,value,tipo);
+function TextAreaTask(id,xPath,value,tipo,state){
+    PrimitiveTask.call(this,id,xPath,value,tipo,state);
     this.msg = "TextAreaTask";
 }
 TextAreaTask.prototype = new PrimitiveTask();
@@ -328,7 +328,13 @@ TextAreaTask.prototype = new PrimitiveTask();
 
 window.onload = function(){
 
-
+//Guardo el contenedor de Tareas
+var esta = localStorage.getItem("BPM");
+if(!esta){
+localStorage.setItem("BPM",JSON.stringify(new Array()));
+}else{
+console.debug('Ya existe la variable BPM'); 
+}
 
 var css_styles = {
 	class_button:"background-color: #24890d;border: 0;border-radius: 2px;color: #fff;font-size: 12px;font-weight: 700;padding: 10px 30px 11px;text-transform: uppercase;vertical-align: bottom;"
@@ -350,14 +356,16 @@ head.appendChild(style);
 
 
 
-var write_localStorage = function(task,xPath,value,taskType){
+var write_localStorage = function(task,xPath,value,taskType,state){
 //console.debug('write_localStorage');
 
 
 	 // var some_properties = '{"type": "FillInputTask","atributos": [{"label": "xPath","el_type": "input","value": "/html/","id": "id_xpath"}
 	 // ,{"label": "valor","el_type": "input","value": "un valor","id": "id_value"}]}';
 	var obj_task = new Object();
-		obj_task.type = task;
+		obj_task.id = 0 ;    
+        obj_task.type = task;
+        obj_task.state = state;
 		obj_task.atributos  = new Array();
 
 	//@TEMP Creo objetos - y hardcodeo para ver como funciona
@@ -378,12 +386,20 @@ var write_localStorage = function(task,xPath,value,taskType){
 	obj_task.atributos.push(obj_xpath);
 	obj_task.atributos.push(obj_value);
 
-	//Lo convierto en JSON
-	var json_task = JSON.stringify(obj_task);
+    //Traigo el array
+    var ls = localStorage.getItem("BPM");
+    var arr_ls = JSON.parse(ls);
+    if(Array.isArray(arr_ls)) console.debug('asdads');
+    var id = arr_ls.length;
+    obj_task.id = id;
+        arr_ls.push(obj_task);
+    //Lo convierto en JSON
+    var json_task = JSON.stringify(arr_ls);
+    localStorage.setItem("BPM",json_task);
+    
+	//var id = localStorage.length + 1;
 
-	var id = localStorage.length + 1;
-
-	localStorage.setItem(id, json_task);
+	//localStorage.setItem(id, json_task);
 }
 /**  
 * Listener de eventos cuando cambia el foco, recolecta datos relacionados.
@@ -420,7 +436,13 @@ var eventoChange = function(event){
 
 		var id = localStorage.length + 1;
 
-		localStorage.setItem(id, JSON.stringify(obj));
+		//localStorage.setItem(id, JSON.stringify(obj));
+        //traigo localStorage
+        var ls = localStorage.getItem("BPM");
+        var arr_ls = JSON.parse(ls);
+        arr_ls.push(obj);
+
+        localStorage.setItem("BPM",arr_ls);
 		Recorder.refresh();
 
 	    break;
@@ -448,9 +470,8 @@ var eventoChange = function(event){
 		obj.tipo = tipo;
 		}
 		
-		//Podría instanciar el tipo de tarea y que la tarea escriba en el localStorage?
 
-		write_localStorage('FillInputTask',sxPath,el_value,0);
+		write_localStorage('FillInputTask',sxPath,el_value,0,0);
 		Recorder.refresh();
 		break;
 	 	case 'TEXTAREA':
@@ -462,7 +483,7 @@ var eventoChange = function(event){
 		obj.tipo = tipo;
 		var id = localStorage.length + 1;
 
-		localStorage.setItem(id, JSON.stringify(obj));
+	//	localStorage.setItem(id, JSON.stringify(obj));
 		Recorder.refresh();
         break;
 		default:
@@ -726,38 +747,39 @@ var Recorder = {
     //console.log("Ejecuta estas tareas");
 
 
-          //Aca hay un error porque el wirter_localstorage es diferente al edit
+    //Aca hay un error porque el wirter_localstorage es diferente al edit
     ////console.debug(localStorage);
     Manager.clearCurrentPrimitiveTasks();
+    //Trae el localStorage
+    var ls = localStorage.getItem("BPM");
+    var arr_ls = JSON.parse(ls);
     var i;
-    for (i=0;i < localStorage.length ;i++){
+        for (i=0;i < arr_ls.length ;i++){
 
-    var key = localStorage.key(i);
-    var value = localStorage[key];
-    var tasks = JSON.parse(value);	
+            try{
 
-try{
-    var xpath = tasks.atributos[0].value;
-    var valor = tasks.atributos[1].value;
-}catch(err){
-////console.debug('error atributos');
-}
-    //Agrego la tarea y el objeto se encarga de ejecutar lo que sea, con la configuracion que sea
-    if(tasks.type){
-    	////console.debug('---');
-    ////console.debug(tasks.type); 
-        	////console.debug('---');
+            var xpath = arr_ls[i].atributos[0].value;
+            var valor = arr_ls[i].atributos[1].value;
+            }catch(err){
+            ////console.debug('error atributos');
+            }
+            //Agrego la tarea y el objeto se encarga de ejecutar lo que sea, con la configuracion que sea
 
-    	try{
-    //Tengo que saber que tipo de elemento para saber que agregar
-    Manager.addPrimitiveTask(i,tasks.type,xpath,
-    valor,0);
-        }catch(err){
-        	////console.debug(err);
+        	try{
+console.debug('agrega essssto');
+console.debug(arr_ls[i].state);
+
+            Manager.addPrimitiveTask(arr_ls[i].id,arr_ls[i].type,xpath,valor,'',0,arr_ls[i].state);
+        
+            }catch(err){
+            	////console.debug(err);
+            }
+
         }
-    }
-
-          }
+        console.debug('start');
+        var temp = Manager.getCurrentPrimitiveTasks();
+        console.debug(temp);
+        console.debug('start');
 
           Manager.start();
 	}
@@ -774,10 +796,14 @@ try{
 		    table_consola.removeChild(table_consola.firstChild);
 		  }
 
-		  for (var i=0;i < localStorage.length;i++){
-		  
-		    var key = localStorage.key(i);
-		    var value = localStorage[key];
+        //1. Traigo del localStorage el array
+        var ls_tasks = localStorage.getItem("BPM");
+        var arr_tasks = JSON.parse(ls_tasks);
+		//if(arr_tasks) return false; // si no hay nada sali
+          for (var i=0;i < arr_tasks.length;i++){
+		  console.debug(arr_tasks[i]);
+		  //  var key = localStorage.key(i);
+		   // var value = localStorage[key];
 		    //Saco solamente el tipo, despues lo puedo sacar por el localStorage <-- borrar
 			////console.debug(localStorage[i]);
 			try{
@@ -786,9 +812,7 @@ try{
 				////console.debug(err);
 			}
 			
-
-		    //this.writer(key,value,-1);
-		    this.writer(key,concept,-1);
+		    this.writer(arr_tasks[i].id,arr_tasks[i].type,-1);
 		  }
 
 	}
@@ -943,8 +967,10 @@ var RConsole = {
 	 	//console.debug('4. crea boton Clear');
 		var clear = this.createButton('Clear','clear',null);
 		clear.onclick = function(){
-		localStorage.clear();
-		document.getElementById("table_consola").innerHTML = "";
+
+		//localStorage.clear();
+		localStorage.setItem("BPM",JSON.stringify(new Array()));
+        document.getElementById("table_consola").innerHTML = "";
 		}; 
 		return clear;
 	 }
@@ -1354,4 +1380,4 @@ var onClickHandler = function (event)
 
 //Inicia el Recorder
   Recorder.init();
-};
+};	
