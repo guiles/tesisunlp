@@ -1,128 +1,136 @@
 /**
  * Tesis Ing. Guillermo A. Caserotto
- * @module Recorder
- * @main recorder
+ * @module BPMA
+*/
+/*
  * Eventos que voy a tratar:
  * onChange: select, text, textarea
  * onClick: select, text, textarea
  * onFocus: select, text, textarea
  * onSelect: text, textarea
  */
- 
-//bpmanager.js
-document.addEventListener("taskFinished", executeNext, false);
-
-// Metodo que selecciona tareas del array del Manager y las ejecuta secuencialmente
-
-
-
-
-function executeNext(e) {
-	//var taskId = e.detail.taskId;
-/*	console.debug("Evento: "+e.currentTarget.nodeName+", "
-	+e.detail.time.toLocaleString()+": "+e.detail.message);*/
-
-
-            	try{
-            		var next_task = Manager.getNextTask();
-
-
-    				next_task.execute();           
-					
-					}catch(err){
-					 	//console.debug("error"+err+"!!!");	
-					}
-               
-
-    
-}
-
-
+ /**
+ * @class Manager
+ * @extends BPMA
+ */
 var Manager = (function () {
 	"use strict";
     var currentPrimitiveTasks = []; //Array de las tareas a realizar cuando se ejecuta el Manager
     var primitiveTasks = ['FillInputTask','SelectOptionTask','TextAreaTask','CheckBoxTask']; //Un array de tareas que puede realizar
     var indice;
     var arr_tareas;
+    /**
+    * @method Subscribe
+    */
         function subscribe(aPrimitiveTask){ //Este metodo por ahora solo agrega el objeto 
          currentPrimitiveTasks.push(aPrimitiveTask);
         }
-
+        /**
+        * @method createFillInputTask
+        */
         function createFillInputTask(aId,xPath,value,aMsg,aTipo,aState){
-            console.debug('crea el fill input');
-            console.debug(aState);
-            var a = new FillInputTask(aId,xPath,value,aMsg,aTipo,1);
-            console.debug(a);
-                        console.debug('crea el fill input');
-
         return  new FillInputTask(aId,xPath,value,aMsg,aTipo,aState);
         }
+        /**
+        * @method createSelectOptionTask
+        */
+
         function createSelectOptionTask(aId,xPath,value,aMsg,aTipo,aState){
         return new SelectOptionTask(aId,xPath,value,aMsg,aTipo,aState);
         }
-
+        /**
+        * @method createTextAreaTask
+        */
         function createTextAreaTask(aId,xPath,value,aMsg,aTipo,aState){
         return new TextAreaTask(aId,xPath,value,aMsg,aTipo,aState);
         }
-
+        /**
+        * @method createCheckBoxTask
+        */
         function createCheckBoxTask(aId,xPath,value,aMsg,aTipo,aState){
         return new CheckBoxTask(aId,xPath,value,aMsg,aTipo,aState);
         }
-
+        /**
+        * @method createRadioTask
+        */
         function createRadioTask(aId,xPath,value,aMsg,aTipo,aState){
         return new RadioTask(aId,xPath,value,aMsg,aTipo,aState);
         }
         
     	return {
+        /**
+        * @method incrementIndice
+        */
 		     incrementIndice: function(){
 				this.indice = this.indice + 1;
 		     }
+        /**
+        * @method getIndice
+        */
 		     ,getIndice: function(){
 				return this.indice;
 		     }
+        /**
+        * @method setIndice
+        */     
 		     ,setIndice:function(val){
 		     	this.indice = val;	
 		      }
+        /**
+        * @method getNextTask
+        */       
            	,getNextTask : function(){ //Me trae la proxima tarea pendiente
            		console.debug("Trae la siguiente tarea");
            		//console.debug(currentPrimitiveTasks.length);
            		var i;
-    	for (i = 0;i < currentPrimitiveTasks.length;i=i+1){
-    		   
-               
-               if(currentPrimitiveTasks[i].getState() === 0 ) { 
-        return currentPrimitiveTasks[i]; 
-               }else{
-               	//console.debug("Esto esta mal");
-						//console.debug(i);
-               }
-    	}
+            	for (i = 0;i < currentPrimitiveTasks.length;i=i+1){
+            		   
+                       
+                       if(currentPrimitiveTasks[i].getState() === 0 ) { 
+                return currentPrimitiveTasks[i]; 
+                       }else{
+                       	//console.debug("Esto esta mal");
+        						//console.debug(i);
+                       }
+            	}
         	}
-        	    ,getNextTaskTimer : function(){ //Me trae la proxima tarea pendiente
+        /**
+        * @method getNextTaskTimer
+        */    
+        	,getNextTaskTimer : function(){ //Me trae la proxima tarea pendiente
            		console.debug("Trae la siguiente tarea");
            		//console.debug(currentPrimitiveTasks.length);
            		var i;
-    	for (i = 0;i < currentPrimitiveTasks.length;i=i+1){
-    		   
-               
-               if(currentPrimitiveTasks[i].getState() === 0 ) { 
-        return currentPrimitiveTasks[i]; 
-               }else{
-               	//console.debug("Esto esta mal");
-			    //console.debug(i);
-               }
-    	}
+            	for (i = 0;i < currentPrimitiveTasks.length;i=i+1){
+            		   
+                       
+                       if(currentPrimitiveTasks[i].getState() === 0 ) { 
+                return currentPrimitiveTasks[i]; 
+                       }else{
+                       	//console.debug("Esto esta mal");
+        			    //console.debug(i);
+                       }
+            	}
         	}
+        /**
+        * @method start
+        */  
         	,start: function(){
 		          Manager.setIndice(0);
 		          Manager.ejecutaProximaTareaTimer();
        	 //Comentado para probar lo que esta arriba
        	 /*if(currentPrimitiveTasks.length > 0){currentPrimitiveTasks[0].execute();}
         	currentPrimitiveTasks[0].execute();*/
-        	}       
-        	,clearCurrentPrimitiveTasks: function(){
-        currentPrimitiveTasks=[];
         	}
+        /**
+        * @method clearCurrentPrimitiveTasks
+        */       
+        	,clearCurrentPrimitiveTasks: function(){
+            currentPrimitiveTasks=[];
+        	}
+        /**
+        * @method addPrimitiveTask
+        */    
         	,addPrimitiveTask :  function(aId,aPrimitiveTaskType,xPath,value,msg,tipo,state){
                 console.debug('estado de la tarea dentro de add');
                 console.debug(state);
@@ -136,10 +144,16 @@ var Manager = (function () {
 
 	    	lookup[aPrimitiveTaskType] ? subscribe(lookup[aPrimitiveTaskType]) : def();
 		   
-    		} 
+    		}
+        /**
+        * @method getCurrentPrimitiveTasks
+        */  
         	,getCurrentPrimitiveTasks: function(){
         	return currentPrimitiveTasks;
         	}
+        /**
+        * @method highlightElement
+        */ 
         	,highlightElement: function(obj){
 			   var orig = obj.style.outline;
 			   //obj.style.outline = "0.25em solid #FFFF00";
@@ -148,6 +162,9 @@ var Manager = (function () {
 			   		obj.classList.remove("cssClass");
 			   }, 1500);
 			}
+        /**
+        * @method ejecutaProximaTareaTimer
+        */ 
 			,ejecutaProximaTareaTimer: function(){
 
             var arr_tareas =  Manager.getCurrentPrimitiveTasks();
@@ -174,6 +191,10 @@ var Manager = (function () {
 }());
 
 
+ /*
+ * 
+ * @submodule Tasks
+ */
  /**
  * 
  * PrimitiveTask
