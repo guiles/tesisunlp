@@ -1,8 +1,515 @@
+/**  
+* Listener de eventos cuando cambia el foco, recolecta datos relacionados.
+* @event eventoChange
+*/
+var eventoChange = function(event){
 
+    	//console.debug("Empieza a grabar registroEventoChange");
+    
+		//Temporal, para asignarle si es tarea automatica, deberia ir en la consola
+		var tipo = 0;
+		var el_id = event.target.id;
+		var el_value = event.target.value;
+		//Si tiene id le pongo el xPath //*[@id="THE_ID"]
+		if(el_id){
+		var sxPath = '//*[@id="'+el_id+'"]';
+		}else{ //Si no tiene ID tengo que ver la manera de sacar el absoluto
+		//console.debug("no tiene id, saco el absoluto, uso el ejemplo de stack");
+		var sxPath = Recorder.createXPathFromElement(event.target) ;
+		//console.debug(sxPath);
+		}
+
+		//Guardo en el JSON compartido que sirve para el recorder.
+		//Diferencio los tipos de nodos, ahi le envio el tipo de tarea que recolecto.
+		//Me parece que seria mejor que tome el nombre del elemento y no tengo que usar el switch
+		switch(event.target.nodeName)
+		{
+		case 'SELECT':
+		var obj = new Object();
+		obj.type = "SelectOptionTask";
+		obj.xPath  = sxPath;
+		obj.value = el_value;
+		obj.tipo = tipo;
+
+		var id = localStorage.length + 1;
+
+		//localStorage.setItem(id, JSON.stringify(obj));
+        //traigo localStorage
+        var ls = localStorage.getItem("BPM");
+        var arr_ls = JSON.parse(ls);
+        arr_ls.push(obj);
+
+        localStorage.setItem("BPM",arr_ls);
+		Recorder.refresh();
+
+	    break;
+		case 'INPUT':
+
+		//temporal para ver si funciona
+        //console.debug('entra a input');
+		if(event.target.type=='radio'){ 
+		var obj = new Object();
+		obj.type = "RadioTask";
+		obj.xPath  = sxPath;
+		obj.value = el_value;
+		obj.tipo = tipo;
+		}else if(event.target.type=='checkbox'){
+		var obj = new Object();
+		obj.type = "CheckBoxTask";
+		obj.xPath  = sxPath;
+		obj.value = el_value;
+		obj.tipo = tipo;
+		}else{
+		var obj = new Object();
+		obj.type = "FillInputTask";
+		obj.xPath  = sxPath;
+		obj.value = el_value;
+		obj.tipo = tipo;
+		}
+		
+
+		write_localStorage('FillInputTask',sxPath,el_value,0,0);
+		Recorder.refresh();
+		break;
+	 	case 'TEXTAREA':
+
+		var obj = new Object();
+		obj.type = "TextAreaTask";
+		obj.xPath  = sxPath;
+		obj.value = el_value;
+		obj.tipo = tipo;
+		var id = localStorage.length + 1;
+
+	//	localStorage.setItem(id, JSON.stringify(obj));
+		Recorder.refresh();
+        break;
+		default:
+
+		break;
+		}
+}
+
+//======================================================================//
+/**
+ * @class Recorder
+ */
+
+var Recorder = {
+    /**
+     * @method createButton
+     */
+	createButton: function(aValue,anId,attributes){
+
+	var aButton = document.createElement("input");	
+    aButton.setAttribute('type','button');
+    aButton.setAttribute('value',aValue);
+    aButton.setAttribute('id',anId);
+
+      for (var attr in attributes) { 
+      aButton.setAttribute(attr,attributes[attr]);  
+      }
+
+	return aButton;
+	}	
+	/**  
+	* Crea elementos HTML para manejar la edicion de las tareas
+	* @method createEditionContaniner   
+	*/
+	,createEditionContainer: function(){
+	
+	var div_editor = document.createElement("div");	
+	div_editor.id = "div_editor";
+	div_editor.style.cssText="visibility: hidden;position:absolute;width:200px;height:200px;top:50%;left:50%;margin-top:-100px;margin-left:-100px;background-color:white";
+	var div_container = document.createElement("div");	
+	div_container.id = "div_container";
+
+
+    var div_consola = document.getElementById('div_consola');
+    // div_consola.style.visibility = "hidden";
+    div_editor.appendChild(div_container);
+	div_consola.appendChild(div_editor);
+
+	}
+	/**  
+	* Muestra ventana para agregar una tarea primitiva o un augmenter
+	* @method addTask    
+	*/
+	,addTask: function() {
+
+		var that = this;
+				var save_task = document.createElement("input");
+				save_task.type = "button";
+				save_task.value = "Save";
+				//save_task.setAttribute('class','class_button');
+
+				save_task.onclick = function(){ 
+				//Podria utilizar otro elemento y no el div overlay  <-- borrar 			  		
+			    el = document.getElementById("div_editor");
+	    		el.style.visibility = (el.style.visibility == "visible") ? "hidden" : "visible";
+				var temp =  document.getElementById("table_edit");
+			    var array_nodes = temp.childNodes;
+	        	id = localStorage.length + 1;
+
+	        	var obj1 = new Object();
+	        	obj1.type = array_nodes[0].childNodes[1].value;
+	        	obj1.xPath  = array_nodes[1].childNodes[1].value;
+	        	obj1.value = array_nodes[2].childNodes[1].value;
+	        	obj1.tipo = 0; //Tengo que traducir el Yes/No
+	        	var obj_value = JSON.stringify(obj1);
+		       	localStorage.setItem(id,obj_value);
+				that.firstChild.selected = true;
+				Recorder.refresh();
+				};
+		//instancio la vista ... podria sacar de constantes los elementos basicos
+		var add_task = Object.create(inflater);
+		add_task.properties = '{"type":"FillInputTask","atributos":[{"label":"xPath","el_type":"input","value":"/html[1]/body[1]/div[2]/form[1]/input[2]","id":"id_xpath"},{"label":"Valor","el_type":"input","value":"333","id":"id_value"}]}';
+		
+		//Agrego el augmenter aca, hacer un metodo nuevo y dividir responsabilidades
+		el = document.getElementById("div_editor");
+        el.style.visibility = "visible";	   
+        
+		(this.value === "1") ? view.render(el, add_task.inflate()) : view.render(el, add_augmenter.inflate());
+
+		var close_edit = document.createElement("input");
+		close_edit.type = "button";
+		close_edit.value = "Close";
+		//close_edit.setAttribute('class','class_button');
+
+		close_edit.onclick = function(){ 
+	  
+		   var close_edit = document.getElementById("table_edit");
+	       
+	 	  el = document.getElementById("div_editor");
+	 	  el.style.visibility = (el.style.visibility == "visible") ? "hidden" : "visible";
+	  	  that.firstChild.selected = true;
+	 	};
+
+	 	//Agrego al final los dos botones
+		el.appendChild(save_task);
+		el.appendChild(close_edit);
+
+	  	var select_xpath = document.getElementById("input_xpath");
+
+	/*	select_xpath.addEventListener('focus',function(){ var high = new Highlighter(); high.init();},true);
+		select_xpath.addEventListener('blur',function(){ var high = new Highlighter(); high.stop();},true);*/
+	var select_xpath = document.createElement("input");
+		select_xpath.type = "button";
+		select_xpath.id = "select_xpath";
+		select_xpath.value = "X";
+		//select_xpath.setAttribute('class','class_button');
+	 	el.appendChild(select_xpath);
+		select_xpath.onclick = function(){ 
+	  
+	  
+	  	//var select_xpath = document.getElementById("select_xpath");
+
+	  		//Para ver que ande el highlighter
+	 	 var input_xpath = document.getElementById("input_xpath");
+	 	 // ////console.debug(input_xpath.parentNode);
+
+	 	 //console.debug('trae input_xpath');
+		 var high = new Highlighter();
+	
+		
+		 if(select_xpath.value=='X'){
+		 	    	 high.init();
+		 	    	 select_xpath.value = "-"
+		 	    	 ////console.debug(input_xpath);
+
+		 }else{
+		 	    	 high.stop();
+		 	    	 select_xpath.value = "XPathEvaluator"
+		 }
+		 
+	 	};
+
+	 var input_xpath = document.getElementById("input_xpath");
+	// //console.debug('nananana');
+	 var temp = input_xpath.parentNode;
+
+	 temp.appendChild(select_xpath);
+	 ////console.debug(temp);
+
+	//	table_edit.appendChild(select_xpath);
+
+		//view.render(div_add, add_task.inflate());
+		//div_add.appendChild(save_task);
+		//div_add.appendChild(close_edit);
+		
+	}
+	/**  
+	* si bien esto es repetir codigo, por ahora lo hago asi hasta que tenga un diseño mas copado, (Ver Imagen del Pizarron)
+	* @method Consola.editRow    
+	*/
+	,editRow: function(x) {
+
+    //Trae el objeto que corresponde, segun el tipo de Tarea y le delega a el la tarea de armar los parametros para armar
+    //el HTML ( objeto JSON)
+
+	el = document.getElementById("div_editor");
+	el.style.visibility = (el.style.visibility == "visible") ? "hidden" : "visible";
+	  
+	var table_row = x.parentNode.parentNode;  
+	
+    //Esto es lo que trae del registro seleccionado
+	var edit_task = Object.create(inflater);
+    var task = localStorageManager.getObject(table_row.id);
+    console.debug('1.creo el editor');
+    edit_task.properties = JSON.stringify(task);
+    console.debug('1.render el editor');
+    view.render(el, edit_task.inflate());
+
+	/*****/
+	var close_edit = document.createElement("input");
+	close_edit.type = "button";
+	close_edit.value = "X";
+	
+	close_edit.onclick = function(){ 
+	   var close_edit = document.getElementById("table_edit");
+	   el = document.getElementById("div_editor");
+	   el.style.visibility = (el.style.visibility == "visible") ? "hidden" : "visible";
+	   }
+	/****/
+	  el.appendChild(close_edit); 
+
+	var edit_button = document.createElement('input');
+	edit_button.type = "button";
+	edit_button.value = "E";
+	edit_button.onclick = function(){
+    
+	var ed = Object.create(editor);  
+	var json_string = ed.htmlToJson(el);	
+    localStorageManager.setObject(table_row.id,json_string);
+    el = document.getElementById("div_editor");
+    el.style.visibility = "hidden";
+  	
+	};
+
+	el.appendChild(edit_button); 
+
+	   
+	}
+	/**  
+	* Dispara el handler de record
+	* @method clickRecord   
+	*/
+	,clickRecord: function(){
+	
+     var start_record = document.getElementById('start_record');
+	 if(start_record.value == "Record"){
+	 ////console.debug('empieza a grabar');
+	 document.addEventListener("change", eventoChange , false);   
+	 start_record.value = "Stop";
+	 	
+	 }else if(start_record.value == "Stop"){
+	 ////console.debug("termino de grabar");	
+     start_record.value = "Record" ;
+     document.removeEventListener("change", eventoChange, false); 
+	 }  
+     
+	}
+	/**  
+	* Para de grabar 
+	* @method clickStop   
+	*/
+	,clickStop: function(){
+	 
+	////console.debug("termino de grabar");
+    document.removeEventListener("change", eventoChange, false); 
+    // document.removeEventListener("click", TESIS.registroEventoClic , false); 
+     var start_record = document.getElementById('start_record');
+	 start_record.disabled = false;
+     var stop_record = document.getElementById('stop_record');
+     stop_record.disabled = true;
+	}
+	/**  
+	* Reproduce 
+	* @method clickPlay 
+	*/
+	,clickPlay: function(){
+
+    //console.log("Ejecuta estas tareas");
+
+
+    //Aca hay un error porque el wirter_localstorage es diferente al edit
+    ////console.debug(localStorage);
+    Manager.clearCurrentPrimitiveTasks();
+    //Trae el localStorage
+    var ls = localStorage.getItem("BPM");
+    var arr_ls = JSON.parse(ls);
+    var i;
+        for (i=0;i < arr_ls.length ;i++){
+
+            try{
+
+            var xpath = arr_ls[i].atributos[0].value;
+            var valor = arr_ls[i].atributos[1].value;
+            }catch(err){
+            ////console.debug('error atributos');
+            }
+            //Agrego la tarea y el objeto se encarga de ejecutar lo que sea, con la configuracion que sea
+
+        	try{
+            console.debug('agrega essssto');
+            console.debug(arr_ls[i].state);
+
+            Manager.addPrimitiveTask(arr_ls[i].id,arr_ls[i].type,xpath,valor,'',0,arr_ls[i].state);
+        
+            }catch(err){
+            	////console.debug(err);
+            }
+
+        }
+        console.debug('start');
+        var temp = Manager.getCurrentPrimitiveTasks();
+        console.debug(temp);
+        console.debug('start');
+
+          Manager.start();
+	}
+	/**  
+	* Actualiza la consola con el localStorage 
+	* @method refresh   
+	*/
+	,refresh: function(){
+
+		  var table_consola = document.getElementById("table_consola");
+  
+            while(table_consola.hasChildNodes())
+            {
+              table_consola.removeChild(table_consola.firstChild);
+            }
+
+          //1. Traigo del localStorage el array
+          var ls_tasks = localStorage.getItem("BPM");
+          var arr_tasks = JSON.parse(ls_tasks);
+
+          for (var i=0;i < arr_tasks.length;i++){
+
+			try{
+			var concept = JSON.parse(value).type;	
+			}catch(err){
+				////console.debug(err);
+			}
+			
+             this.writer(arr_tasks[i].id,arr_tasks[i].type,-1);
+           }
+	}
+	/**  
+	* Escribe en la consola
+	* @method writer 
+	*/
+	,writer: function(id,text,index){
+
+		var table_consola = document.getElementById("table_consola");
+
+		//Inserto registro
+		var tr = document.getElementById('table_consola').insertRow(index);
+        tr.id= id;
+	    var td1 = document.createElement('td');
+	    var td2 = document.createElement('td');
+	    var td3 = document.createElement('td');
+	    var td4 = document.createElement('td');
+	    var td5 = document.createElement('td');
+
+	 	var text1 = document.createTextNode(text);
+	    var delete_button = document.createElement('input');
+		delete_button.type = "button";
+		delete_button.value = "X";
+		//delete_button.setAttribute('class','class_button');
+
+		delete_button.onclick = function(x){ 
+
+			if(confirm('Desea borrar el regitro?')){
+			var id = this.parentNode.parentNode.id;
+			var row = this.parentNode.parentNode.sectionRowIndex;
+			document.getElementById('table_consola').deleteRow(row);
+			localStorage.removeItem(id);
+			}
+		};
+
+		var edit_button = document.createElement('input');
+		edit_button.type = "button";
+		edit_button.value = "E";
+		//edit_button.setAttribute('class','class_button');
+		edit_button.onclick = function(){
+		Recorder.editRow(this);
+		};
+
+
+		var id_text = document.createTextNode(id);
+
+		td1.appendChild(id_text);
+		td2.appendChild(text1);
+		//td3.appendChild(add_button);
+		td4.appendChild(edit_button);
+		td5.appendChild(delete_button);
+		tr.appendChild(td1);
+		tr.appendChild(td2);
+		tr.appendChild(td3);
+		tr.appendChild(td4);
+		tr.appendChild(td5);
+		}	
+	/**
+	* @method lookupElementByXPath
+	*/
+	,lookupElementByXPath: function (path) { 
+	   var evaluator = new XPathEvaluator(); 
+	   var result = evaluator.evaluate(path, document.documentElement, null,XPathResult.FIRST_ORDERED_NODE_TYPE, null); 
+	   return  result.singleNodeValue; 
+	}
+	/**
+	* @method createXPathFromElement	
+	*/
+	,createXPathFromElement: function(elm) { 
+	   var allNodes = document.getElementsByTagName('*'); 
+	   for (segs = []; elm && elm.nodeType == 1; elm = elm.parentNode) 
+	   { 
+	       if (elm.hasAttribute('id')) { 
+	       var uniqueIdCount = 0; 
+	       for (var n=0;n < allNodes.length;n++) { 
+	           if (allNodes[n].hasAttribute('id') && allNodes[n].id == elm.id) uniqueIdCount++; 
+	           if (uniqueIdCount > 1) break; 
+	       }; 
+	       if ( uniqueIdCount == 1) { 
+	           segs.unshift('id("' + elm.getAttribute('id') + '")'); 
+	           return segs.join('/'); 
+	       } else { 
+	           segs.unshift(elm.localName.toLowerCase() + '[@id="' + elm.getAttribute('id') + '"]'); 
+	       } 
+	       } else if (elm.hasAttribute('class')) { 
+	           segs.unshift(elm.localName.toLowerCase() + '[@class="' + elm.getAttribute('class') + '"]'); 
+	       } else { 
+	           for (i = 1, sib = elm.previousSibling; sib; sib = sib.previousSibling) { 
+	       if (sib.localName == elm.localName)  i++; }; 
+	       segs.unshift(elm.localName.toLowerCase() + '[' + i + ']'); 
+	       }; 
+	   }; 
+	   return segs.length ? '/' + segs.join('/') : null; 
+	} 
+	,init: function(){
+	
+
+	//this.createHeaderConsole(); 
+	RConsole.init();
+	this.createEditionContainer();
+	Recorder.refresh();
+
+	}
+  }
+//=========================RConsole====================
+/**
+* Crea todos los elementos de la consola
+* @class RConsole
+*/
 var RConsole = {
-createButton: function(aValue,anId,attributes){
+	/**
+	* 
+	* @method createButton
+	*/
+	createButton: function(aValue,anId,attributes){
 
-var aButton = document.createElement("input");
+		var aButton = document.createElement("input");	
 	    aButton.setAttribute('type','button');
 	    aButton.setAttribute('value',aValue);
 	    aButton.setAttribute('id',anId);
@@ -14,32 +521,34 @@ var aButton = document.createElement("input");
 	return aButton;
 	}
 	,createStopButton: function(){
-		console.debug('1. crea boton Stop');
+		//console.debug('1. crea boton Stop');
 		var attr_stop = {'disabled':true, 'hidden':false };
 		var iStop_recorder = this.createButton('Stop','stop_record',attr_stop);
-		iStop_recorder.addEventListener("click", this.clickStop , false); 
-		console.debug(iStop_recorder.nodeName);
+		iStop_recorder.addEventListener("click", Recorder.clickStop , false); 
+		//console.debug(iStop_recorder.nodeName);
 		return iStop_recorder;
 	 }
 	 ,createPlayButton: function(){
-	 	console.debug('2. crea boton Play');
+	 	//console.debug('2. crea boton Play');
 		var iPlay_recorder = this.createButton('Play','play_procedure',null);
-		iPlay_recorder.addEventListener("click", this.clickPlay , false); 
+		iPlay_recorder.addEventListener("click", Recorder.clickPlay , false); 
 		return iPlay_recorder;
 	 }
 	 ,createRecordButton: function(){
 
-		console.debug('3. crea boton Record');
+		//console.debug('3. crea boton Record');
 		var iRecord_recorder = this.createButton('Record','start_record',null);
-		iRecord_recorder.addEventListener("click",this.clickRecord, false); 
+		iRecord_recorder.addEventListener("click",Recorder.clickRecord, false); 
 		return iRecord_recorder;
 	 }
 	 ,createClearButton: function(){
-	 	console.debug('4. crea boton Clear');
+	 	//console.debug('4. crea boton Clear');
 		var clear = this.createButton('Clear','clear',null);
 		clear.onclick = function(){
-		localStorage.clear();
-		document.getElementById("table_consola").innerHTML = "";
+
+		//localStorage.clear();
+		localStorage.setItem("BPM",JSON.stringify(new Array()));
+        document.getElementById("table_consola").innerHTML = "";
 		}; 
 		return clear;
 	 }
@@ -50,13 +559,14 @@ var aButton = document.createElement("input");
 		load.id = "load";
 
 		load.onclick = function(){	console.log("Contenido:");console.debug(localStorage);
-									console.debug("Tamano:");console.debug(localStorage.length);
+
+									//console.debug("Tamano:");//console.debug(localStorage.length);
 								};
 	     return load;
 		 }
 	 ,createaddTasksSelect: function(){
 
-		console.debug('5. crea Select Tasks');
+		//console.debug('5. crea Select Tasks');
 		var sAddTask = document.createElement('select');
 		sAddTask.setAttribute('id','add_task');
 	 	var j;
@@ -68,12 +578,12 @@ var aButton = document.createElement("input");
 			opt.innerHTML = aOptions[j];
 			sAddTask.appendChild(opt);
 		}
-		sAddTask.addEventListener("change", this.addTask , false); 
+		sAddTask.addEventListener("change", Recorder.addTask , false); 
 
 		return sAddTask;
 	 }
 	 ,createHeaderContainer: function(){
-		console.debug('7. Crea el div consola');		
+		//console.debug('7. Crea el div consola');		
 		var div_consola = document.createElement("div");
 			div_consola.id = "div_consola";		
 			div_consola.style.cssText = "overflow:scroll;    z-index: 300;   position: fixed;        left: 0px;      width: auto;        height: 100%;       border: solid 1px #e1e1e1;      vertical-align: middle;         background: #ffdab9;  text-align: center;";
@@ -81,26 +591,26 @@ var aButton = document.createElement("input");
 
 	 }
 	 ,createHeader: function(){
-	 	console.debug('8. Crea el div consola header');
+	 	//console.debug('8. Crea el div consola header');
 		var div_consola_header = document.createElement("div");
 		div_consola_header.id = "consola_header"
 		return div_consola_header;
 	 }
 	 ,createTableContainer: function(){
-	 	console.debug('9. Crea el div consola table');
+	 	//console.debug('9. Crea el div consola table');
 		var div_table_consola = document.createElement("div");
 		div_table_consola.id =  "div_table_consola";
 		return div_table_consola;
 	 }
 	 ,createTable: function(){
-		console.debug('10. Crea la tabla contenedora de la consola');
+		//console.debug('10. Crea la tabla contenedora de la consola');
 		var table_consola = document.createElement("table")
 		table_consola.id = "table_consola"
 		return table_consola;
 	 }
 	 ,createShowHide: function(){
 
-	console.debug('14. crea el div para la solapa show/hide');
+	//console.debug('14. crea el div para la solapa show/hide');
 	//Agrego la solapa para mostrar/ocultar
 	var div_pestana = document.createElement("div");
 	div_pestana.id =  "div_pestana"; 
@@ -114,7 +624,8 @@ var aButton = document.createElement("input");
 	input_label.onclick = function(){ 
 
 	var div_consola = document.getElementById('div_consola');
-	
+	var body   = document.body || document.getElementsByTagName('body')[0];
+
 	   if(div_consola.style.visibility=='visible'){
 
 		div_consola.style.visibility = "hidden";
@@ -145,9 +656,10 @@ var aButton = document.createElement("input");
 		var table_console_container = this.createTableContainer();
 		var table_console = this.createTable();
 
-	 	container_header.appendChild(playButton);
+	 	
 	 	container_header.appendChild(stopButton);
 	 	container_header.appendChild(recordButton);
+		container_header.appendChild(playButton);
 	 	container_header.appendChild(clearButton);
 	 	container_header.appendChild(loadButton);
 	 	container_header.appendChild(addTaksSelect);
@@ -159,173 +671,13 @@ var aButton = document.createElement("input");
 
 	 	var body   = document.body || document.getElementsByTagName('body')[0];
 	 	
-	 	body.appendChild(container);
-	 	console.debug('15. Agrega la pestana show/hide');    	
+		if (document.body.firstChild){
+		      document.body.insertBefore(container, document.body.firstChild);
+		    }else{
+		      document.body.appendChild(container);
+		}
+	 	//console.debug('15. Agrega la pestana show/hide');    	
 		body.appendChild(show_hide); 
     	body.style.marginLeft = "400px";
 	 }
-}
-//RConsole.init();
-//console.debug(RConsole);
-window.onload = function(){
-	//var rconsole = Object.create(RConsole);
-	//rconsole.init();
-	RConsole.init();
-}
-
-
-/*
-	,createHeaderConsole: function(){
-
-	
-console.debug('6. trae el elemento body');
-var body   = document.body || document.getElementsByTagName('body')[0];
-var div_consola = document.createElement("div");
-
-if (document.body.firstChild){
-      document.body.insertBefore(div_consola, document.body.firstChild);
-    }else{
-      document.body.appendChild(div_consola);
-}
-
-
-}*/
-
-//===============================
-
-/**
-* @class selectElement
-*/
-var selectElement = {
-	specs:{}
-	,render: function(){
-
-		var div_select = document.createElement('div');
-		var label = document.createTextNode(this.specs.label);
-		    div_select.appendChild(label);
-		var input = document.createElement('select');
-		var len = this.specs.choices.length;
-		
-		for (var i = 0; i < len; i++) {
-		var option = document.createElement('option');
-		    option.text = this.specs.choices[i];
-		    option.value = this.specs.choices[i];
-		    input.appendChild(option);
-		}
-		    div_select.appendChild(input);
-
-	return div_select;
-	}
-}
-
-/**
-* @class inputElement
-*/
-
-var inputElement = {
-	specs:{}
-	,label:''
-	,id:''
-	,value:''
-	,render: function(){
-
-		var div_input = document.createElement('div');
-		var label = document.createTextNode(this.label);
-		    div_input.appendChild(label);
-		var input = document.createElement('input');
-		    input.type = 'text';
-		    input.id = this.id;
-		    input.value = this.value;
-		    div_input.appendChild(input);
-
-    return div_input;
-	}
-}
-/**
-* @class view
-*/
-var view = {
-      render: function(target, elements) {
-      
-      target.firstChild.innerHTML="";
-      target.innerHTML = "";
-          for (var i = 0; i < elements.length; i++) {
-	      target.appendChild(elements[i].render());
-          }
-      }
-};
-
-/**
-* @class inflater
-*/
-var inflater = {
-	properties:[]
-	,elements:[]
-	,inflate: function(){
-	var obj_properties = JSON.parse(this.properties);
-	// @TODO: refactor con lookup
-	this.elements = [];
-		for (var i = 0; i < obj_properties.atributos.length; i++) {
-		    var type_el = obj_properties.atributos[i].el_type;
-		    var el_inflator = null;
-		    switch(type_el){
-	   	    case 'input':
-			el_inflator = Object.create(inputElement);
-		    break;
-		    
-		    case 'select':
-		    el_inflator = Object.create(selectElement);
-		    break;
-		    
-		    default:
-		    return false;
-		    break;
-		    }
-
-		el_inflator.label = obj_properties.atributos[i].label;
-		el_inflator.value = obj_properties.atributos[i].value;
-		el_inflator.id =  obj_properties.atributos[i].id;
-		this.elements.push(el_inflator);  
-
-		}
-
-	return this.elements;
-	}
-}
-
-
-var editor = {
-	properties: []
-	,htmlToJson: function(el_div){
-
-	var obj_json = new Object();
-	obj_json.type = "FillInputTask";
-	obj_json.atributos = new Array();
-	var i ;
-	var childnodes = el.childNodes;
-		for (i = 0; i < childnodes.length ; i = i + 1){
-	    //mientras que sea un div ( Tiene atributos - elementos HTML)
-
-			if(childnodes[i].nodeName == 'DIV'){ 
-			  var obj_atributo = new Object();
-			  var j;
-			  var elements = childnodes[i].childNodes;
-				for (j = 0; j < elements.length ; j = j + 1){
-					//recorro otra vez el dom y armo el objeto
-					if(elements[j].nodeName == "#text"){
-					//console.debug(elements[j].textContent);
-					obj_atributo.label = elements[j].textContent;
-					}
-					if(elements[j].nodeName == "INPUT"){
-					obj_atributo.el_type = 'input';
-					obj_atributo.value = elements[j].value;
-					obj_atributo.id = elements[j].id;
-					}
-					}
-				obj_json.atributos.push(obj_atributo);
-			}
-		}
-
-	return JSON.stringify(obj_json);
-	}
 }
