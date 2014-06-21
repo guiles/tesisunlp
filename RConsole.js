@@ -25,26 +25,20 @@ var eventoChange = function(event){
 		switch(event.target.nodeName)
 		{
 		case 'SELECT':
-		var obj = new Object();
-		obj.type = "SelectOptionTask";
-		obj.xPath  = sxPath;
-		obj.value = el_value;
-		obj.tipo = tipo;
-
-		var id = localStorage.length + 1;
-
-		//localStorage.setItem(id, JSON.stringify(obj));
-        //traigo localStorage
-        var ls = localStorage.getItem("BPM");
-        var arr_ls = JSON.parse(ls);
-        arr_ls.push(obj);
-
-        localStorage.setItem("BPM",arr_ls);
+		var o_task = new SelectOptionTask();
+		o_task.xPath = sxPath;
+		o_task.value = el_value;
+		o_task.tipo = tipo;
+		
+		localStorageManager.insert(o_task.toJson());
+		
+		//write_localStorage('FillInputTask',sxPath,el_value,0,0);
 		Recorder.refresh();
+
 
 	    break;
 		case 'INPUT':
-
+		var o_task;
 		//temporal para ver si funciona
         //console.debug('entra a input');
 		if(event.target.type=='radio'){ 
@@ -61,14 +55,23 @@ var eventoChange = function(event){
 		obj.tipo = tipo;
 		}else{
 		var obj = new Object();
-		obj.type = "FillInputTask";
+		/*obj.type = "FillInputTask";
 		obj.xPath  = sxPath;
 		obj.value = el_value;
 		obj.tipo = tipo;
-		}
-		
+*/
+	var	o_task = new FillInputTask();
+		o_task.xPath = sxPath;
+		o_task.value = el_value;
+		o_task.tipo = tipo;
 
-		write_localStorage('FillInputTask',sxPath,el_value,0,0);
+		}
+		///se guarda una tarea nueva //JUNIO 21
+		console.debug('guarda el json');
+		console.debug(o_task.toJson());
+		localStorageManager.insert(o_task.toJson());
+		
+		//write_localStorage('FillInputTask',sxPath,el_value,0,0);
 		Recorder.refresh();
 		break;
 	 	case 'TEXTAREA':
@@ -80,7 +83,12 @@ var eventoChange = function(event){
 		obj.tipo = tipo;
 		var id = localStorage.length + 1;
 
-	//	localStorage.setItem(id, JSON.stringify(obj));
+		o_task = new TextAreaTask();
+		o_task.xPath = sxPath;
+		o_task.value = el_value;
+		o_task.tipo = tipo;
+		localStorageManager.insert(o_task.toJson());
+		console.debug('entra aqui');
 		Recorder.refresh();
         break;
 		default:
@@ -250,14 +258,25 @@ var Recorder = {
 	el.style.visibility = (el.style.visibility == "visible") ? "hidden" : "visible";
 	  
 	var table_row = x.parentNode.parentNode;  
-	
+	//JUNIO 21
+	//VOy a usar el objeto de cada Tarea para 
     //Esto es lo que trae del registro seleccionado
 	var edit_task = Object.create(inflater);
     var task = localStorageManager.getObject(table_row.id);
-    console.debug('1.creo el editor');
-    edit_task.properties = JSON.stringify(task);
-    console.debug('1.render el editor');
-    view.render(el, edit_task.inflate());
+    if(task.type == 'FillInputTask'){
+    	var iTask = new FillInputTask();
+    	console.debug('es un objeto FillInputTask');
+    	console.debug(task);		
+		var x = iTask.toHtml(JSON.stringify(task));
+		console.debug(x);
+    }else if(task.type == 'TextAreaTask'){
+
+		var iTask = new TextAreaTask();
+    	console.debug('es un objeto TextAreaTask');
+		var x = iTask.toHtml(JSON.stringify(task));
+		//console.debug(x);
+    }
+	view.render(el, x);
 
 	/*****/
 	var close_edit = document.createElement("input");
@@ -276,10 +295,14 @@ var Recorder = {
 	edit_button.type = "button";
 	edit_button.value = "E";
 	edit_button.onclick = function(){
-    
-	var ed = Object.create(editor);  
-	var json_string = ed.htmlToJson(el);	
-    localStorageManager.setObject(table_row.id,json_string);
+    //JUNIO 21 - Aca deberia ser dependiendo el objeto
+	//TEMP, Hasta que no guarde bien el JSON 
+	//ACA tengo que usar el metodo de la tarea que instancie y no el editor, el editor que se encargue solamente de 
+	//objetos json
+	iTask.id = table_row.id; //--> Parche!!!! 
+	console.debug(iTask.htmlToJson(el));
+	localStorageManager.setObjectR(iTask.htmlToJson(el));
+
     el = document.getElementById("div_editor");
     el.style.visibility = "hidden";
   	
@@ -341,9 +364,9 @@ var Recorder = {
         for (i=0;i < arr_ls.length ;i++){
 
             try{
-
-            var xpath = arr_ls[i].atributos[0].value;
-            var valor = arr_ls[i].atributos[1].value;
+//Esto tambien esta mal, hay que sacarlo de otra manera, se soluciona cuando tenga el objeto JSON correspondiente
+            var xpath = arr_ls[i].atributos[1].value;
+            var valor = arr_ls[i].atributos[2].value;
             }catch(err){
             ////console.debug('error atributos');
             }
@@ -558,7 +581,10 @@ var RConsole = {
 		load.value = "LS";
 		load.id = "load";
 
-		load.onclick = function(){	console.log("Contenido:");console.debug(localStorage);
+		load.onclick = function(){	
+			console.log("Contenido:");
+console.debug(JSON.parse(localStorage.getItem("BPM")));
+			//console.debug(localStorage);
 
 									//console.debug("Tamano:");//console.debug(localStorage.length);
 								};
@@ -681,3 +707,32 @@ var RConsole = {
     	body.style.marginLeft = "400px";
 	 }
 }
+
+
+//Draggable Edit Window //===============================================//
+var dragObj = null;
+function draggable(id)
+{
+    var obj = document.getElementById(id);
+    obj.style.position = "absolute";
+    obj.onmousedown = function(){
+            dragObj = obj;
+    }
+}
+ 
+document.onmouseup = function(e){
+    dragObj = null;
+};
+
+document.onmousemove = function(e){
+    var x = e.pageX;
+    var y = e.pageY;
+
+    if(dragObj == null)
+        return;
+
+    dragObj.style.left = x +"px";
+    dragObj.style.top= y +"px";
+};
+
+  
