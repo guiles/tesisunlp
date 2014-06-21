@@ -312,16 +312,22 @@ TextAreaTask.prototype.toJson = function(){
     obj_value.value = this.value;
     obj_value.id = 'id_value';
     
-    var obj_avalue = new Object();
-    
-    obj_avalue.label = 'Valor';
-    obj_avalue.el_type = 'input';
-    obj_avalue.value = this.value;
-    obj_avalue.id = 'id_value';
+    var obj_id = new Object();
+    obj_id.label = 'ID';
+    obj_id.el_type = 'input';
+    obj_id.value = 0;
+    obj_id.id = 'id';
+  
+  var aobj_id = new Object();
+    aobj_id.label = 'ID';
+    aobj_id.el_type = 'input';
+    aobj_id.value = 0;
+    aobj_id.id = 'id';
 
+    obj_task.atributos.push(obj_id);
     obj_task.atributos.push(obj_xpath);
     obj_task.atributos.push(obj_value);
-    obj_task.atributos.push(obj_avalue);
+    obj_task.atributos.push(aobj_id);
 
 
 return JSON.stringify(obj_task);
@@ -357,4 +363,40 @@ TextAreaTask.prototype.toHtml = function(properties){
         }
 
     return this.elements;
+    }
+
+TextAreaTask.prototype.htmlToJson = function(el_div){
+
+    var obj_json = new Object();
+    obj_json.type = "TextAreaTask";
+    obj_json.state = 0;
+    obj_json.id = this.id;
+
+    obj_json.atributos = new Array();
+    var i ;
+    var childnodes = el.childNodes;
+        for (i = 0; i < childnodes.length ; i = i + 1){
+        //mientras que sea un div ( Tiene atributos - elementos HTML)
+
+            if(childnodes[i].nodeName == 'DIV'){ 
+              var obj_atributo = new Object();
+              var j;
+              var elements = childnodes[i].childNodes;
+                for (j = 0; j < elements.length ; j = j + 1){
+                    //recorro otra vez el dom y armo el objeto
+                    if(elements[j].nodeName == "#text"){
+                    ////console.debug(elements[j].textContent);
+                    obj_atributo.label = elements[j].textContent;
+                    }
+                    if(elements[j].nodeName == "INPUT"){
+                    obj_atributo.el_type = 'input';
+                    obj_atributo.value = elements[j].value;
+                    obj_atributo.id = elements[j].id;
+                    }
+                    }
+                obj_json.atributos.push(obj_atributo);
+            }
+        }
+
+    return JSON.stringify(obj_json);
     }

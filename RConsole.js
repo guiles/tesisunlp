@@ -81,14 +81,14 @@ var eventoChange = function(event){
 		obj.xPath  = sxPath;
 		obj.value = el_value;
 		obj.tipo = tipo;
-		var id = localStorage.length + 1;
+	
 
 		o_task = new TextAreaTask();
 		o_task.xPath = sxPath;
 		o_task.value = el_value;
 		o_task.tipo = tipo;
 		localStorageManager.insert(o_task.toJson());
-		console.debug('entra aqui');
+	
 		Recorder.refresh();
         break;
 		default:
