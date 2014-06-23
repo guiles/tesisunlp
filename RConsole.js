@@ -1,7 +1,50 @@
+window.onbeforeunload = function(e) {
+  console.debug('Se fue de la pagina');
+};
 /**  
 * Listener de eventos cuando cambia el foco, recolecta datos relacionados.
 * @event eventoChange
 */
+
+var eventoClick = function(event){
+//alert('asdasd');
+
+	console.debug("Evento: "+event.currentTarget.nodeName+", "+event.detail.message);
+	console.debug("Evento: "+event.target.nodeName+", "+event.detail);
+
+	//event.preventDefault();
+	
+	if(event.target.nodeName == 'A' ) {
+
+	console.debug('se va a otro lado, registro el evento/Tarea');
+	
+		var tipo = 0;
+		var el_id = event.target.id;
+		var el_value = event.target.value;
+	
+		//Si tiene id le pongo el xPath //*[@id="THE_ID"]
+		if(el_id){
+		var sxPath = '//*[@id="'+el_id+'"]';
+		}else{ //Si no tiene ID tengo que ver la manera de sacar el absoluto
+		//console.debug("no tiene id, saco el absoluto, uso el ejemplo de stack");
+		var sxPath = Recorder.createXPathFromElement(event.target) ;
+		//console.debug(sxPath);
+		}
+
+	var o_task = new ClickLinkTask();
+		o_task.xPath = sxPath;
+		o_task.value = el_value;
+		o_task.tipo = tipo;
+		
+
+		console.debug('guarda el json');
+		console.debug(o_task.toJson());
+		localStorageManager.insert(o_task.toJson());
+				
+		Recorder.refresh();
+
+	} 
+}
 var eventoChange = function(event){
 
     	//console.debug("Empieza a grabar registroEventoChange");
@@ -21,7 +64,6 @@ var eventoChange = function(event){
 
 		//Guardo en el JSON compartido que sirve para el recorder.
 		//Diferencio los tipos de nodos, ahi le envio el tipo de tarea que recolecto.
-		//Me parece que seria mejor que tome el nombre del elemento y no tengo que usar el switch
 		switch(event.target.nodeName)
 		{
 		case 'SELECT':
@@ -30,11 +72,11 @@ var eventoChange = function(event){
 		o_task.value = el_value;
 		o_task.tipo = tipo;
 		
+		console.debug('guarda el json');
+		console.debug(o_task.toJson());
 		localStorageManager.insert(o_task.toJson());
-		
-		//write_localStorage('FillInputTask',sxPath,el_value,0,0);
+				
 		Recorder.refresh();
-
 
 	    break;
 		case 'INPUT':
@@ -275,7 +317,22 @@ var Recorder = {
     	console.debug('es un objeto TextAreaTask');
 		var x = iTask.toHtml(JSON.stringify(task));
 		//console.debug(x);
+    }else if(task.type == 'SelectOptionTask'){
+
+		var iTask = new SelectOptionTask();
+    	console.debug('es un objeto SelectOptionTask');
+    	console.debug(JSON.stringify(task));
+		var x = iTask.toHtml(JSON.stringify(task));
+		//console.debug(x);
+    }else if(task.type == 'ClickLinkTask'){
+
+		var iTask = new ClickLinkTask();
+    	console.debug('es un objeto SelectOptionTask');
+    	console.debug(JSON.stringify(task));
+		var x = iTask.toHtml(JSON.stringify(task));
+		//console.debug(x);
     }
+
 	view.render(el, x);
 
 	/*****/
@@ -287,9 +344,9 @@ var Recorder = {
 	   var close_edit = document.getElementById("table_edit");
 	   el = document.getElementById("div_editor");
 	   el.style.visibility = (el.style.visibility == "visible") ? "hidden" : "visible";
-	   }
+	}
 	/****/
-	  el.appendChild(close_edit); 
+	el.appendChild(close_edit); 
 
 	var edit_button = document.createElement('input');
 	edit_button.type = "button";
@@ -300,7 +357,9 @@ var Recorder = {
 	//ACA tengo que usar el metodo de la tarea que instancie y no el editor, el editor que se encargue solamente de 
 	//objetos json
 	iTask.id = table_row.id; //--> Parche!!!! 
+	console.debug('iTask.htmlToJson(el)');
 	console.debug(iTask.htmlToJson(el));
+	console.debug('iTask.htmlToJson(el)');
 	localStorageManager.setObjectR(iTask.htmlToJson(el));
 
     el = document.getElementById("div_editor");
@@ -309,8 +368,7 @@ var Recorder = {
 	};
 
 	el.appendChild(edit_button); 
-
-	   
+   
 	}
 	/**  
 	* Dispara el handler de record
@@ -322,12 +380,18 @@ var Recorder = {
 	 if(start_record.value == "Record"){
 	 ////console.debug('empieza a grabar');
 	 document.addEventListener("change", eventoChange , false);   
+	 document.addEventListener("click", eventoClick , false);
+	 //document.addEventListener("onbeforeunload", eventoClick , false);
 	 start_record.value = "Stop";
 	 	
 	 }else if(start_record.value == "Stop"){
 	 ////console.debug("termino de grabar");	
      start_record.value = "Record" ;
      document.removeEventListener("change", eventoChange, false); 
+     document.removeEventListener("click", eventoClick , false);
+     //document.removeEventListener("onbeforeunload", eventoClick , false);
+	 localStorage.setItem("BPMEXECUTION",0);
+
 	 }  
      
 	}
@@ -344,7 +408,9 @@ var Recorder = {
 	 start_record.disabled = false;
      var stop_record = document.getElementById('stop_record');
      stop_record.disabled = true;
+
 	}
+
 	/**  
 	* Reproduce 
 	* @method clickPlay 
@@ -357,6 +423,7 @@ var Recorder = {
     //Aca hay un error porque el wirter_localstorage es diferente al edit
     ////console.debug(localStorage);
     Manager.clearCurrentPrimitiveTasks();
+
     //Trae el localStorage
     var ls = localStorage.getItem("BPM");
     var arr_ls = JSON.parse(ls);
@@ -364,7 +431,7 @@ var Recorder = {
         for (i=0;i < arr_ls.length ;i++){
 
             try{
-//Esto tambien esta mal, hay que sacarlo de otra manera, se soluciona cuando tenga el objeto JSON correspondiente
+			//Esto tambien esta mal, hay que sacarlo de otra manera, se soluciona cuando tenga el objeto JSON correspondiente
             var xpath = arr_ls[i].atributos[1].value;
             var valor = arr_ls[i].atributos[2].value;
             }catch(err){
@@ -389,6 +456,9 @@ var Recorder = {
         console.debug('start');
 
           Manager.start();
+          //Parche!!! Le mando al localStorage el estado de ejecucion
+          localStorage.setItem("BPMEXECUTION",1);
+
 	}
 	/**  
 	* Actualiza la consola con el localStorage 
@@ -583,7 +653,9 @@ var RConsole = {
 
 		load.onclick = function(){	
 			console.log("Contenido:");
-console.debug(JSON.parse(localStorage.getItem("BPM")));
+		console.debug(JSON.parse(localStorage.getItem("BPM")));
+		console.debug('ejecutando:');
+		console.debug(localStorage.getItem("BPMEXECUTION"));
 			//console.debug(localStorage);
 
 									//console.debug("Tamano:");//console.debug(localStorage.length);

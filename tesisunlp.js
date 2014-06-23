@@ -56,7 +56,12 @@ var Manager = (function () {
         function createRadioTask(aId,xPath,value,aMsg,aTipo,aState){
         return new RadioTask(aId,xPath,value,aMsg,aTipo,aState);
         }
-        
+        /**
+        * @method createClickLinkTask
+        */
+        function createClickLinkTask(aId,xPath,value,aMsg,aTipo,aState){
+        return new createClickLinkTask(aId,xPath,value,aMsg,aTipo,aState);
+        }
     	return {
         /**
         * @method incrementIndice
@@ -116,6 +121,7 @@ var Manager = (function () {
         * @method start
         */  
         	,start: function(){
+
 		          Manager.setIndice(0);
 		          Manager.executeNextTaskWithTimer();
         	}
@@ -136,7 +142,8 @@ var Manager = (function () {
 	    	{ FillInputTask: createFillInputTask(aId,xPath,value,msg,tipo,state)
 	    	, SelectOptionTask: createSelectOptionTask(aId,xPath,value,msg,tipo,state)
 	    	, TextAreaTask: createTextAreaTask(aId,xPath,value,msg,tipo,state)
-	    	, CheckBoxTask: createCheckBoxTask(aId,xPath,value,msg,tipo,state) } 
+	    	, CheckBoxTask: createCheckBoxTask(aId,xPath,value,msg,tipo,state)
+            , ClickLinkTask: createClickLinkTask(aId,xPath,value,msg,tipo,state) } 
 	    	, def = null ;
 
 	    	lookup[aPrimitiveTaskType] ? subscribe(lookup[aPrimitiveTaskType]) : def();
@@ -165,7 +172,7 @@ var Manager = (function () {
 			,executeNextTaskWithTimer: function(){
 
             var arr_tareas =  Manager.getCurrentPrimitiveTasks();
-                
+
                 setTimeout(function () {    
 
                 var indice = Manager.getIndice();	
@@ -325,14 +332,6 @@ var write_localStorage = function(task,xPath,value,taskType,state){
 
 window.onload = function(){
 
-//Guardo el contenedor de Tareas
-var esta = localStorage.getItem("BPM");
-if(!esta){
-localStorage.setItem("BPM",JSON.stringify(new Array()));
-}else{
-console.debug('Ya existe la variable BPM'); 
-}
-
 var css_styles = {
 	class_button:"background-color: #24890d;border: 0;border-radius: 2px;color: #fff;font-size: 12px;font-weight: 700;padding: 10px 30px 11px;text-transform: uppercase;vertical-align: bottom;"
 };
@@ -360,6 +359,25 @@ head.appendChild(style);
 
 
 //Inicia el Recorder
-  Recorder.init();
+Recorder.init();
 draggable('div_editor');
+
+//Guardo el contenedor de Tareas
+var esta = localStorage.getItem("BPM");
+if(!esta){
+localStorage.setItem("BPM",JSON.stringify(new Array()));
+//localStorage.setItem("BPMEXECUTION",0);
+console.debug(localStorage);
+}else{
+
+console.debug('Ya existe la variable BPM, verifico la ejecucion'); 
+console.debug(localStorage.getItem("BPMEXECUTION"));
+var ejecucion = localStorage.getItem("BPMEXECUTION")
+    if(ejecucion == 1){
+    //Parche!
+    var el = document.getElementById('start_record').click();
+    }
+
+}
+
 };	

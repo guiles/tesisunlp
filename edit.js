@@ -5,11 +5,19 @@
 var selectElement = {
     specs:{}
     ,render: function(){
-
+    
+    var iterator = document.evaluate(this.specs,document,null,0,null);
+    var node = iterator.iterateNext();
+    var select = node.cloneNode(true);
+    select.id="id_select";
+    //console.debug(select);
+    //return select;
+        
         var div_select = document.createElement('div');
-        var label = document.createTextNode(this.specs.label);
+        var label = document.createTextNode('SELECT');
             div_select.appendChild(label);
-        var input = document.createElement('select');
+    /*    var input = document.createElement('select');
+        
         var len = this.specs.choices.length;
         
         for (var i = 0; i < len; i++) {
@@ -18,8 +26,10 @@ var selectElement = {
             option.value = this.specs.choices[i];
             input.appendChild(option);
         }
-            div_select.appendChild(input);
+    */    
+        //div_select.appendChild(input);
 
+        div_select.appendChild(select);    
     return div_select;
     }
 }
