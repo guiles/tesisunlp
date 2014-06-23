@@ -60,7 +60,7 @@ var Manager = (function () {
         * @method createClickLinkTask
         */
         function createClickLinkTask(aId,xPath,value,aMsg,aTipo,aState){
-        return new createClickLinkTask(aId,xPath,value,aMsg,aTipo,aState);
+        return new ClickLinkTask(aId,xPath,value,aMsg,aTipo,aState);
         }
     	return {
         /**
@@ -136,7 +136,7 @@ var Manager = (function () {
         */    
         	,addPrimitiveTask : function(aId,aPrimitiveTaskType,xPath,value,msg,tipo,state){
                 console.debug('estado de la tarea dentro de add');
-                console.debug(state);
+                console.debug(aPrimitiveTaskType);
     		//Este metodo reemplaza al switch
 	    	var lookup = 
 	    	{ FillInputTask: createFillInputTask(aId,xPath,value,msg,tipo,state)
@@ -176,8 +176,8 @@ var Manager = (function () {
                 setTimeout(function () {    
 
                 var indice = Manager.getIndice();	
-                console.debug("estado de la tarea");
-                console.debug(arr_tareas[indice]);	
+              //  console.debug("estado de la tarea");
+              //  console.debug(arr_tareas[indice]);	
 
                 if(arr_tareas[indice].state == 0)
                 arr_tareas[indice].execute();
@@ -357,6 +357,7 @@ head.appendChild(style);
 //RConsole.js//===============================//
 //edit.js//===============================//
 
+//localStorage.setItem("BPM",JSON.stringify(new Array()));
 
 //Inicia el Recorder
 Recorder.init();
@@ -372,12 +373,20 @@ console.debug(localStorage);
 
 console.debug('Ya existe la variable BPM, verifico la ejecucion'); 
 console.debug(localStorage.getItem("BPMEXECUTION"));
-var ejecucion = localStorage.getItem("BPMEXECUTION")
-    if(ejecucion == 1){
+var grabando = localStorage.getItem("BPMRECORDING")
+    if(grabando == 1){
     //Parche!
     var el = document.getElementById('start_record').click();
+    }
+var ejecucion = localStorage.getItem("BPMEXECUTION")
+if(ejecucion == 1){
+    //Parche!
+    var el = document.getElementById('play_procedure').click();
     }
 
 }
 
+
+
+console.debug(localStorage);
 };	

@@ -383,15 +383,15 @@ var Recorder = {
 	 document.addEventListener("click", eventoClick , false);
 	 //document.addEventListener("onbeforeunload", eventoClick , false);
 	 start_record.value = "Stop";
-	 	
+	localStorage.setItem("BPMRECORDING",1);
 	 }else if(start_record.value == "Stop"){
 	 ////console.debug("termino de grabar");	
      start_record.value = "Record" ;
      document.removeEventListener("change", eventoChange, false); 
      document.removeEventListener("click", eventoClick , false);
      //document.removeEventListener("onbeforeunload", eventoClick , false);
-	 localStorage.setItem("BPMEXECUTION",0);
-
+	 
+	 localStorage.setItem("BPMRECORDING",0);
 	 }  
      
 	}
@@ -426,7 +426,9 @@ var Recorder = {
 
     //Trae el localStorage
     var ls = localStorage.getItem("BPM");
+    
     var arr_ls = JSON.parse(ls);
+    
     var i;
         for (i=0;i < arr_ls.length ;i++){
 
@@ -656,6 +658,8 @@ var RConsole = {
 		console.debug(JSON.parse(localStorage.getItem("BPM")));
 		console.debug('ejecutando:');
 		console.debug(localStorage.getItem("BPMEXECUTION"));
+		console.debug('grabando:');
+		console.debug(localStorage.getItem("BPMRECORDING"));
 			//console.debug(localStorage);
 
 									//console.debug("Tamano:");//console.debug(localStorage.length);
