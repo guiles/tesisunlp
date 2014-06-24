@@ -1,5 +1,5 @@
 window.onbeforeunload = function(e) {
-  console.debug('Se fue de la pagina');
+  //console.debug('Se fue de la pagina');
 };
 /**  
 * Listener de eventos cuando cambia el foco, recolecta datos relacionados.
@@ -9,14 +9,14 @@ window.onbeforeunload = function(e) {
 var eventoClick = function(event){
 //alert('asdasd');
 
-	console.debug("Evento: "+event.currentTarget.nodeName+", "+event.detail.message);
-	console.debug("Evento: "+event.target.nodeName+", "+event.detail);
+	//console.debug("Evento: "+event.currentTarget.nodeName+", "+event.detail.message);
+	//console.debug("Evento: "+event.target.nodeName+", "+event.detail);
 
 	//event.preventDefault();
 	
 	if(event.target.nodeName == 'A' ) {
 
-	console.debug('se va a otro lado, registro el evento/Tarea');
+	//console.debug('se va a otro lado, registro el evento/Tarea');
 	
 		var tipo = 0;
 		var el_id = event.target.id;
@@ -26,9 +26,9 @@ var eventoClick = function(event){
 		if(el_id){
 		var sxPath = '//*[@id="'+el_id+'"]';
 		}else{ //Si no tiene ID tengo que ver la manera de sacar el absoluto
-		//console.debug("no tiene id, saco el absoluto, uso el ejemplo de stack");
+		////console.debug("no tiene id, saco el absoluto, uso el ejemplo de stack");
 		var sxPath = Recorder.createXPathFromElement(event.target) ;
-		//console.debug(sxPath);
+		////console.debug(sxPath);
 		}
 
 	var o_task = new ClickLinkTask();
@@ -37,8 +37,8 @@ var eventoClick = function(event){
 		o_task.tipo = tipo;
 		
 
-		console.debug('guarda el json');
-		console.debug(o_task.toJson());
+		//console.debug('guarda el json');
+		//console.debug(o_task.toJson());
 		localStorageManager.insert(o_task.toJson());
 				
 		Recorder.refresh();
@@ -47,7 +47,7 @@ var eventoClick = function(event){
 }
 var eventoChange = function(event){
 
-    	//console.debug("Empieza a grabar registroEventoChange");
+    	////console.debug("Empieza a grabar registroEventoChange");
     
 		//Temporal, para asignarle si es tarea automatica, deberia ir en la consola
 		var tipo = 0;
@@ -57,9 +57,9 @@ var eventoChange = function(event){
 		if(el_id){
 		var sxPath = '//*[@id="'+el_id+'"]';
 		}else{ //Si no tiene ID tengo que ver la manera de sacar el absoluto
-		//console.debug("no tiene id, saco el absoluto, uso el ejemplo de stack");
+		////console.debug("no tiene id, saco el absoluto, uso el ejemplo de stack");
 		var sxPath = Recorder.createXPathFromElement(event.target) ;
-		//console.debug(sxPath);
+		////console.debug(sxPath);
 		}
 
 		//Guardo en el JSON compartido que sirve para el recorder.
@@ -72,8 +72,8 @@ var eventoChange = function(event){
 		o_task.value = el_value;
 		o_task.tipo = tipo;
 		
-		console.debug('guarda el json');
-		console.debug(o_task.toJson());
+		//console.debug('guarda el json');
+		//console.debug(o_task.toJson());
 		localStorageManager.insert(o_task.toJson());
 				
 		Recorder.refresh();
@@ -82,7 +82,7 @@ var eventoChange = function(event){
 		case 'INPUT':
 		var o_task;
 		//temporal para ver si funciona
-        //console.debug('entra a input');
+        ////console.debug('entra a input');
 		if(event.target.type=='radio'){ 
 		var obj = new Object();
 		obj.type = "RadioTask";
@@ -109,8 +109,8 @@ var eventoChange = function(event){
 
 		}
 		///se guarda una tarea nueva //JUNIO 21
-		console.debug('guarda el json');
-		console.debug(o_task.toJson());
+		//console.debug('guarda el json');
+		//console.debug(o_task.toJson());
 		localStorageManager.insert(o_task.toJson());
 		
 		//write_localStorage('FillInputTask',sxPath,el_value,0,0);
@@ -255,16 +255,16 @@ var Recorder = {
 
 	  		//Para ver que ande el highlighter
 	 	 var input_xpath = document.getElementById("input_xpath");
-	 	 // ////console.debug(input_xpath.parentNode);
+	 	 // //////console.debug(input_xpath.parentNode);
 
-	 	 //console.debug('trae input_xpath');
+	 	 ////console.debug('trae input_xpath');
 		 var high = new Highlighter();
 	
 		
 		 if(select_xpath.value=='X'){
 		 	    	 high.init();
 		 	    	 select_xpath.value = "-"
-		 	    	 ////console.debug(input_xpath);
+		 	    	 //////console.debug(input_xpath);
 
 		 }else{
 		 	    	 high.stop();
@@ -274,11 +274,11 @@ var Recorder = {
 	 	};
 
 	 var input_xpath = document.getElementById("input_xpath");
-	// //console.debug('nananana');
+	// ////console.debug('nananana');
 	 var temp = input_xpath.parentNode;
 
 	 temp.appendChild(select_xpath);
-	 ////console.debug(temp);
+	 //////console.debug(temp);
 
 	//	table_edit.appendChild(select_xpath);
 
@@ -307,30 +307,30 @@ var Recorder = {
     var task = localStorageManager.getObject(table_row.id);
     if(task.type == 'FillInputTask'){
     	var iTask = new FillInputTask();
-    	console.debug('es un objeto FillInputTask');
-    	console.debug(task);		
+    	//console.debug('es un objeto FillInputTask');
+    	//console.debug(task);		
 		var x = iTask.toHtml(JSON.stringify(task));
-		console.debug(x);
+		//console.debug(x);
     }else if(task.type == 'TextAreaTask'){
 
 		var iTask = new TextAreaTask();
-    	console.debug('es un objeto TextAreaTask');
+    	//console.debug('es un objeto TextAreaTask');
 		var x = iTask.toHtml(JSON.stringify(task));
-		//console.debug(x);
+		////console.debug(x);
     }else if(task.type == 'SelectOptionTask'){
 
 		var iTask = new SelectOptionTask();
-    	console.debug('es un objeto SelectOptionTask');
-    	console.debug(JSON.stringify(task));
+    	//console.debug('es un objeto SelectOptionTask');
+    	//console.debug(JSON.stringify(task));
 		var x = iTask.toHtml(JSON.stringify(task));
-		//console.debug(x);
+		////console.debug(x);
     }else if(task.type == 'ClickLinkTask'){
 
 		var iTask = new ClickLinkTask();
-    	console.debug('es un objeto SelectOptionTask');
-    	console.debug(JSON.stringify(task));
+    	//console.debug('es un objeto SelectOptionTask');
+    	//console.debug(JSON.stringify(task));
 		var x = iTask.toHtml(JSON.stringify(task));
-		//console.debug(x);
+		////console.debug(x);
     }
 
 	view.render(el, x);
@@ -357,9 +357,9 @@ var Recorder = {
 	//ACA tengo que usar el metodo de la tarea que instancie y no el editor, el editor que se encargue solamente de 
 	//objetos json
 	iTask.id = table_row.id; //--> Parche!!!! 
-	console.debug('iTask.htmlToJson(el)');
-	console.debug(iTask.htmlToJson(el));
-	console.debug('iTask.htmlToJson(el)');
+	//console.debug('iTask.htmlToJson(el)');
+	//console.debug(iTask.htmlToJson(el));
+	//console.debug('iTask.htmlToJson(el)');
 	localStorageManager.setObjectR(iTask.htmlToJson(el));
 
     el = document.getElementById("div_editor");
@@ -378,14 +378,14 @@ var Recorder = {
 	
      var start_record = document.getElementById('start_record');
 	 if(start_record.value == "Record"){
-	 ////console.debug('empieza a grabar');
+	 //////console.debug('empieza a grabar');
 	 document.addEventListener("change", eventoChange , false);   
 	 document.addEventListener("click", eventoClick , false);
 	 //document.addEventListener("onbeforeunload", eventoClick , false);
 	 start_record.value = "Stop";
 	localStorage.setItem("BPMRECORDING",1);
 	 }else if(start_record.value == "Stop"){
-	 ////console.debug("termino de grabar");	
+	 //////console.debug("termino de grabar");	
      start_record.value = "Record" ;
      document.removeEventListener("change", eventoChange, false); 
      document.removeEventListener("click", eventoClick , false);
@@ -401,7 +401,7 @@ var Recorder = {
 	*/
 	,clickStop: function(){
 	 
-	////console.debug("termino de grabar");
+	//////console.debug("termino de grabar");
     document.removeEventListener("change", eventoChange, false); 
     // document.removeEventListener("click", TESIS.registroEventoClic , false); 
      var start_record = document.getElementById('start_record');
@@ -417,19 +417,22 @@ var Recorder = {
 	*/
 	,clickPlay: function(){
 
-    //console.log("Ejecuta estas tareas");
+		//Parche!!! Le mando al localStorage el estado de ejecucion		
+		localStorage.setItem("BPMEXECUTION",1);
 
+//==================================================
+//NO ME CIERRAAAAA!!!!
+Manager.clearCurrentPrimitiveTasks();
+var arr_ls = Manager.initCurrentPrimitiveTasks();
+if( arr_ls.length == 0){
+	//console.debug('no hay mas tareas');
+	localStorage.setItem("BPMEXECUTION",0);
+	return false;
+}
 
-    //Aca hay un error porque el wirter_localstorage es diferente al edit
-    ////console.debug(localStorage);
-    Manager.clearCurrentPrimitiveTasks();
+//=================================================
 
-    //Trae el localStorage
-    var ls = localStorage.getItem("BPM");
-    
-    var arr_ls = JSON.parse(ls);
-    
-    var i;
+  		var i;
         for (i=0;i < arr_ls.length ;i++){
 
             try{
@@ -437,29 +440,23 @@ var Recorder = {
             var xpath = arr_ls[i].atributos[1].value;
             var valor = arr_ls[i].atributos[2].value;
             }catch(err){
-            ////console.debug('error atributos');
+            //////console.debug('error atributos');
             }
             //Agrego la tarea y el objeto se encarga de ejecutar lo que sea, con la configuracion que sea
 
         	try{
-            console.debug('agrega essssto');
-            console.debug(arr_ls[i].state);
-
+            
             Manager.addPrimitiveTask(arr_ls[i].id,arr_ls[i].type,xpath,valor,'',0,arr_ls[i].state);
         
             }catch(err){
-            	////console.debug(err);
+            	//////console.debug(err);
             }
 
         }
-        console.debug('start');
-        var temp = Manager.getCurrentPrimitiveTasks();
-        console.debug(temp);
-        console.debug('start');
-
-          Manager.start();
-          //Parche!!! Le mando al localStorage el estado de ejecucion
-          localStorage.setItem("BPMEXECUTION",1);
+        
+        Manager.start();
+          
+          
 
 	}
 	/**  
@@ -484,7 +481,7 @@ var Recorder = {
 			try{
 			var concept = JSON.parse(value).type;	
 			}catch(err){
-				////console.debug(err);
+				//////console.debug(err);
 			}
 			
              this.writer(arr_tasks[i].id,arr_tasks[i].type,-1);
@@ -616,28 +613,28 @@ var RConsole = {
 	return aButton;
 	}
 	,createStopButton: function(){
-		//console.debug('1. crea boton Stop');
+		////console.debug('1. crea boton Stop');
 		var attr_stop = {'disabled':true, 'hidden':false };
 		var iStop_recorder = this.createButton('Stop','stop_record',attr_stop);
 		iStop_recorder.addEventListener("click", Recorder.clickStop , false); 
-		//console.debug(iStop_recorder.nodeName);
+		////console.debug(iStop_recorder.nodeName);
 		return iStop_recorder;
 	 }
 	 ,createPlayButton: function(){
-	 	//console.debug('2. crea boton Play');
+	 	////console.debug('2. crea boton Play');
 		var iPlay_recorder = this.createButton('Play','play_procedure',null);
 		iPlay_recorder.addEventListener("click", Recorder.clickPlay , false); 
 		return iPlay_recorder;
 	 }
 	 ,createRecordButton: function(){
 
-		//console.debug('3. crea boton Record');
+		////console.debug('3. crea boton Record');
 		var iRecord_recorder = this.createButton('Record','start_record',null);
 		iRecord_recorder.addEventListener("click",Recorder.clickRecord, false); 
 		return iRecord_recorder;
 	 }
 	 ,createClearButton: function(){
-	 	//console.debug('4. crea boton Clear');
+	 	////console.debug('4. crea boton Clear');
 		var clear = this.createButton('Clear','clear',null);
 		clear.onclick = function(){
 
@@ -655,20 +652,20 @@ var RConsole = {
 
 		load.onclick = function(){	
 			console.log("Contenido:");
-		console.debug(JSON.parse(localStorage.getItem("BPM")));
-		console.debug('ejecutando:');
-		console.debug(localStorage.getItem("BPMEXECUTION"));
-		console.debug('grabando:');
-		console.debug(localStorage.getItem("BPMRECORDING"));
-			//console.debug(localStorage);
+		console.log(JSON.parse(localStorage.getItem("BPM")));
+		console.log('ejecutando:');
+		console.log(localStorage.getItem("BPMEXECUTION"));
+		console.log('grabando:');
+		console.log(localStorage.getItem("BPMRECORDING"));
+		console.log(localStorage);
 
-									//console.debug("Tamano:");//console.debug(localStorage.length);
+									////console.debug("Tamano:");////console.debug(localStorage.length);
 								};
 	     return load;
 		 }
 	 ,createaddTasksSelect: function(){
 
-		//console.debug('5. crea Select Tasks');
+		////console.debug('5. crea Select Tasks');
 		var sAddTask = document.createElement('select');
 		sAddTask.setAttribute('id','add_task');
 	 	var j;
@@ -685,7 +682,7 @@ var RConsole = {
 		return sAddTask;
 	 }
 	 ,createHeaderContainer: function(){
-		//console.debug('7. Crea el div consola');		
+		////console.debug('7. Crea el div consola');		
 		var div_consola = document.createElement("div");
 			div_consola.id = "div_consola";		
 			div_consola.style.cssText = "overflow:scroll;    z-index: 300;   position: fixed;        left: 0px;      width: auto;        height: 100%;       border: solid 1px #e1e1e1;      vertical-align: middle;         background: #ffdab9;  text-align: center;";
@@ -693,26 +690,26 @@ var RConsole = {
 
 	 }
 	 ,createHeader: function(){
-	 	//console.debug('8. Crea el div consola header');
+	 	////console.debug('8. Crea el div consola header');
 		var div_consola_header = document.createElement("div");
 		div_consola_header.id = "consola_header"
 		return div_consola_header;
 	 }
 	 ,createTableContainer: function(){
-	 	//console.debug('9. Crea el div consola table');
+	 	////console.debug('9. Crea el div consola table');
 		var div_table_consola = document.createElement("div");
 		div_table_consola.id =  "div_table_consola";
 		return div_table_consola;
 	 }
 	 ,createTable: function(){
-		//console.debug('10. Crea la tabla contenedora de la consola');
+		////console.debug('10. Crea la tabla contenedora de la consola');
 		var table_consola = document.createElement("table")
 		table_consola.id = "table_consola"
 		return table_consola;
 	 }
 	 ,createShowHide: function(){
 
-	//console.debug('14. crea el div para la solapa show/hide');
+	////console.debug('14. crea el div para la solapa show/hide');
 	//Agrego la solapa para mostrar/ocultar
 	var div_pestana = document.createElement("div");
 	div_pestana.id =  "div_pestana"; 
@@ -778,7 +775,7 @@ var RConsole = {
 		    }else{
 		      document.body.appendChild(container);
 		}
-	 	//console.debug('15. Agrega la pestana show/hide');    	
+	 	////console.debug('15. Agrega la pestana show/hide');    	
 		body.appendChild(show_hide); 
     	body.style.marginLeft = "400px";
 	 }

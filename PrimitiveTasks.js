@@ -36,9 +36,12 @@ this.state= aState;
  */
 PrimitiveTask.prototype.execute = function(){
 
+console.debug('ejecuto esto');
+
     var iterator = document.evaluate(this.xPath,document,null,0,null);
     var node = iterator.iterateNext();
-
+    console.debug(node);
+    console.debug('esta?');
     if(this.tipo == 1){ //Si es Manual, pide valor
     node.focus();
     var value = prompt("Ingrese Valor","");
@@ -114,10 +117,9 @@ PrimitiveTask.prototype.toHtml = function(properties){
  */
 //aId,xPath,value,aMsg,aTipo,aState
 function FillInputTask(id,xPath,value,msg,tipo,state){
-    console.debug('dentro de la creacion del objeto');
-    console.debug(xPath);
-    console.debug(state);
-
+console.debug('ejecuto tarea INput');
+    console.debug('ejecutando:');
+    console.debug(localStorage.getItem("BPMEXECUTION"));
     PrimitiveTask.call(this,id,xPath,value,tipo,state);
     this.msg = "FillInputTask";
     this.state = state;
@@ -539,12 +541,12 @@ var node = iterator.iterateNext();
 
 
 function ClickLinkTask(id,xPath,value,msg,tipo,state){
-    console.debug('dentro de la creacion del objeto');
-    console.debug(xPath);
-    console.debug(state);
+    console.debug('ejecuto tarea click Link');
+    console.debug('ejecutando:');
+    console.debug(localStorage.getItem("BPMEXECUTION"));
 
     PrimitiveTask.call(this,id,xPath,value,tipo,state);
-    this.msg = "FillInputTask";
+    this.msg = "ClickLinkTask";
     this.state = state;
 }
 ClickLinkTask.prototype = new PrimitiveTask();
@@ -622,7 +624,7 @@ ClickLinkTask.prototype.toHtml = function(properties){
 ClickLinkTask.prototype.htmlToJson = function(el_div){
 
     var obj_json = new Object();
-    obj_json.type = "FillInputTask";
+    obj_json.type = "ClickLinkTask";
     obj_json.state = 0;
     obj_json.id = this.id;
 

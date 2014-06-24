@@ -85,8 +85,8 @@ var Manager = (function () {
         * @method getNextTask
         */       
            	,getNextTask : function(){ //Me trae la proxima tarea pendiente
-           		console.debug("Trae la siguiente tarea");
-           		//console.debug(currentPrimitiveTasks.length);
+           		////console.debug("Trae la siguiente tarea");
+           		//////console.debug(currentPrimitiveTasks.length);
            		var i;
             	for (i = 0;i < currentPrimitiveTasks.length;i=i+1){
             		   
@@ -94,8 +94,8 @@ var Manager = (function () {
                        if(currentPrimitiveTasks[i].getState() === 0 ) { 
                 return currentPrimitiveTasks[i]; 
                        }else{
-                       	//console.debug("Esto esta mal");
-        						//console.debug(i);
+                       	//////console.debug("Esto esta mal");
+        						//////console.debug(i);
                        }
             	}
         	}
@@ -103,20 +103,22 @@ var Manager = (function () {
         * @method getNextTaskTimer
         */    
         	,getNextTaskTimer : function(){ //Me trae la proxima tarea pendiente
-           		console.debug("Trae la siguiente tarea");
-           		//console.debug(currentPrimitiveTasks.length);
+           		////console.debug("Trae la siguiente tarea");
+           		//////console.debug(currentPrimitiveTasks.length);
+
            		var i;
             	for (i = 0;i < currentPrimitiveTasks.length;i=i+1){
             		   
                        
                        if(currentPrimitiveTasks[i].getState() === 0 ) { 
-                return currentPrimitiveTasks[i]; 
+                          return currentPrimitiveTasks[i]; 
                        }else{
-                       	//console.debug("Esto esta mal");
-        			    //console.debug(i);
+                       	//////console.debug("Esto esta mal");
+        			    //////console.debug(i);
                        }
             	}
         	}
+
         /**
         * @method start
         */  
@@ -135,8 +137,8 @@ var Manager = (function () {
         * @method addPrimitiveTask
         */    
         	,addPrimitiveTask : function(aId,aPrimitiveTaskType,xPath,value,msg,tipo,state){
-                console.debug('estado de la tarea dentro de add');
-                console.debug(aPrimitiveTaskType);
+                ////console.debug('estado de la tarea dentro de add');
+                ////console.debug(aPrimitiveTaskType);
     		//Este metodo reemplaza al switch
 	    	var lookup = 
 	    	{ FillInputTask: createFillInputTask(aId,xPath,value,msg,tipo,state)
@@ -151,45 +153,114 @@ var Manager = (function () {
     		}
         /**
         * @method getCurrentPrimitiveTasks
-        */  
+        */  //Que me devuelva las que estan en estado 0, para ejectuar
         	,getCurrentPrimitiveTasks: function(){
         	return currentPrimitiveTasks;
         	}
+            
+            ,initCurrentPrimitiveTasks: function(){
+               this.currentPrimitiveTasks = [];
+               var tasks = localStorageManager.getCurrentTasks();
+               return tasks;
+            }
         /**
         * @method highlightElement
         */ 
         	,highlightElement: function(obj){
-			   var orig = obj.style.outline;
+
+               var orig = obj.style.outline;
 			   //obj.style.outline = "0.25em solid #FFFF00";
 			   obj.classList.add("cssClass");
 			   setTimeout(function(){
 			   		obj.classList.remove("cssClass");
-			   }, 1500);
+			   }, 1000);
 			}
         /**
         * @method executeNextTaskWithTimer
-        */ 
+        */ ,hayTareas: function(){
+
+            var a = localStorageManager.getCurrentTasks();
+            //console.debug('hay tareas?');
+            //console.debug(a);
+            if(typeof a == "undefined"){
+            //console.debug('no, no hay');    
+            return false;
+            }
+            
+            for (var i = 0; i < a.length; i++) {
+                if(a[i].state == 0){
+                    return true;    
+                }
+            }
+            return false;
+            }
+            //esto no se si funciona bien
 			,executeNextTaskWithTimer: function(){
 
+            //Tiene que traer las tareas del localStorage
             var arr_tareas =  Manager.getCurrentPrimitiveTasks();
-
+            //console.debug(arr_tareas);
+            
                 setTimeout(function () {    
+                
 
                 var indice = Manager.getIndice();	
-              //  console.debug("estado de la tarea");
-              //  console.debug(arr_tareas[indice]);	
-
-                if(arr_tareas[indice].state == 0)
-                arr_tareas[indice].execute();
                 
-                    if (indice < arr_tareas.length) { 
+                if(arr_tareas[indice].state == 0)
+                    console.debug('ejecuta esta tarea');
+                    console.debug(arr_tareas[indice]);
+                    console.debug('de todo esto');
+                    console.debug(arr_tareas);
+                    //console.debug(indice);
+                    console.debug('ejecuta esta tarea');
+                    
+                    arr_tareas[indice].execute();
+                    //Finalizo
+                    if(arr_tareas.length == 1) return false;
+
+            //Esto esta mal, tiene que ejecutar mientras haya tareas en estado cero
+            //        if (indice < arr_tareas.length) { 
                     Manager.incrementIndice(); 
                     Manager.executeNextTaskWithTimer();                     
                     
-                    }else{
+              /*      }else{
                     return false;
-                    }                        
-                }, 500);
+                    }                        */
+                }, 1000);
+            }
+            ,init: function(){
+
+             //Si esta ejecutando 
+             
+
+            //Inicializo el Manager (Dependiendo todos los estados)
+            var arr_currTasks = localStorageManager.getCurrentTasks();
+            //console.debug('Traigo las tareas');
+            //console.debug(arr_currTasks);
+            var i;
+            for (i=0;i < arr_currTasks.length ;i++){
+            ////console.debug(arr_currTasks[i]);
+            try{
+            //Esto tambien esta mal, hay que sacarlo de otra manera, se soluciona cuando tenga el objeto JSON correspondiente
+            var xpath = arr_currTasks[i].atributos[1].value;
+            var valor = arr_currTasks[i].atributos[2].value;
+            }catch(err){
+            //////console.debug('error atributos');
+            }
+            //Agrego la tarea y el objeto se encarga de ejecutar lo que sea, con la configuracion que sea
+
+            try{
+            
+            Manager.addPrimitiveTask(arr_currTasks[i].id,arr_currTasks[i].type,xpath,valor,'',0,arr_currTasks[i].state);
+        
+            }catch(err){
+                //////console.debug(err);
+            }
+
+            }
+            //console.debug(Manager.getCurrentPrimitiveTasks() );
+
+
             }
         };
 }());
@@ -211,7 +282,7 @@ localStorageManager = {
         var temp = JSON.parse(tasks);
         var i;
         for (i = 0; i < temp.length; i = i + 1) {
-           // console.debug(temp[i]);
+           // ////console.debug(temp[i]);
             if(temp[i].id == id) return temp[i];
         };
 
@@ -245,10 +316,10 @@ localStorageManager = {
     * @params: json_tasks (un objeto JSON)
     */
     ,setObjectR: function(json_task){
-        console.debug('esto es lo que guarda');
+        ////console.debug('esto es lo que guarda');
         var o = JSON.parse(json_task);
-        console.debug(json_task);
-        console.debug(o);
+        ////console.debug(json_task);
+        ////console.debug(o);
         var tasks = localStorage.getItem("BPM");
         var obj_tasks = JSON.parse(tasks);
         var i;
@@ -259,7 +330,7 @@ localStorageManager = {
                 obj_tasks[i] = o; 
             }
         };
-   // console.debug(JSON.stringify(obj_tasks));
+   // ////console.debug(JSON.stringify(obj_tasks));
     localStorage.setItem("BPM",JSON.stringify(obj_tasks)); 
     return true;
     }
@@ -276,8 +347,27 @@ localStorageManager = {
     //Lo convierto en JSON
     var json_task = JSON.stringify(arr_ls);
     localStorage.setItem("BPM",json_task);
-    
+    }
+    ,getCurrentTasks: function(){
+        var tasks = localStorage.getItem("BPM");
+        //console.debug('Traogp esta tareas');
+        //console.debug(tasks);
+        var temp = JSON.parse(tasks);
+        var currentTasks = new Array();
+        var i;
+        for (i = 0; i < temp.length; i = i + 1) {
 
+            if(temp[i].state == 0) {
+                currentTasks.push(temp[i]);
+            }
+        };
+
+        /*if(currentTasks.length == 0){
+            return false;
+        }else{
+            return currentTasks;
+        }*/
+    return currentTasks;
     }
 }
 
@@ -285,7 +375,7 @@ localStorageManager = {
 //=========================================================================
 
 var write_localStorage = function(task,xPath,value,taskType,state){
-//console.debug('write_localStorage');
+//////console.debug('write_localStorage');
 
 
      // var some_properties = '{"type": "FillInputTask","atributos": [{"label": "xPath","el_type": "input","value": "/html/","id": "id_xpath"}
@@ -317,7 +407,7 @@ var write_localStorage = function(task,xPath,value,taskType,state){
     //Traigo el array
     var ls = localStorage.getItem("BPM");
     var arr_ls = JSON.parse(ls);
-    if(Array.isArray(arr_ls)) console.debug('asdads');
+    if(Array.isArray(arr_ls)) ////console.debug('asdads');
     var id = arr_ls.length;
     obj_task.id = id;
         arr_ls.push(obj_task);
@@ -363,30 +453,39 @@ head.appendChild(style);
 Recorder.init();
 draggable('div_editor');
 
+
 //Guardo el contenedor de Tareas
 var esta = localStorage.getItem("BPM");
 if(!esta){
 localStorage.setItem("BPM",JSON.stringify(new Array()));
-//localStorage.setItem("BPMEXECUTION",0);
-console.debug(localStorage);
+localStorage.setItem("BPMRECORDING",0);
+localStorage.setItem("BPMEXECUTION",0);
 }else{
 
-console.debug('Ya existe la variable BPM, verifico la ejecucion'); 
-console.debug(localStorage.getItem("BPMEXECUTION"));
+}
+
 var grabando = localStorage.getItem("BPMRECORDING")
     if(grabando == 1){
     //Parche!
     var el = document.getElementById('start_record').click();
     }
 var ejecucion = localStorage.getItem("BPMEXECUTION")
+console.log('ejecutando:');
+console.log(localStorage.getItem("BPMEXECUTION"));
+
 if(ejecucion == 1){
+//console.debug('ejecuta');    
     //Parche!
     var el = document.getElementById('play_procedure').click();
+    //console.debug('--------------------RELOAD********---------');
+        //console.debug('esta en ejecucion');
     }
 
-}
+    console.log("Contenido:");
+    console.log(JSON.parse(localStorage.getItem("BPM")));        
+    console.log('grabando:');
+    console.log(localStorage.getItem("BPMRECORDING"));
 
+//Manager.init();
 
-
-console.debug(localStorage);
 };	
