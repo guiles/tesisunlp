@@ -1,3 +1,7 @@
+/**
+ * 
+ * @module RConsole
+*/
 window.onbeforeunload = function(e) {
   //console.debug('Se fue de la pagina');
 };
@@ -162,25 +166,6 @@ var Recorder = {
 	return aButton;
 	}	
 	/**  
-	* Crea elementos HTML para manejar la edicion de las tareas
-	* @method createEditionContaniner   
-	*/
-	,createEditionContainer: function(){
-	
-	var div_editor = document.createElement("div");	
-	div_editor.id = "div_editor";
-	div_editor.style.cssText="visibility: hidden;position:absolute;width:200px;height:200px;top:50%;left:50%;margin-top:-100px;margin-left:-100px;background-color:white";
-	var div_container = document.createElement("div");	
-	div_container.id = "div_container";
-
-
-    var div_consola = document.getElementById('div_consola');
-    // div_consola.style.visibility = "hidden";
-    div_editor.appendChild(div_container);
-	div_consola.appendChild(div_editor);
-
-	}
-	/**  
 	* Muestra ventana para agregar una tarea primitiva o un augmenter
 	* @method addTask    
 	*/
@@ -194,7 +179,7 @@ var Recorder = {
 
 				save_task.onclick = function(){ 
 				//Podria utilizar otro elemento y no el div overlay  <-- borrar 			  		
-			    el = document.getElementById("div_editor");
+			    el = document.getElementById("div_editor_container");
 	    		el.style.visibility = (el.style.visibility == "visible") ? "hidden" : "visible";
 				var temp =  document.getElementById("table_edit");
 			    var array_nodes = temp.childNodes;
@@ -215,7 +200,7 @@ var Recorder = {
 		add_task.properties = '{"type":"FillInputTask","atributos":[{"label":"xPath","el_type":"input","value":"/html[1]/body[1]/div[2]/form[1]/input[2]","id":"id_xpath"},{"label":"Valor","el_type":"input","value":"333","id":"id_value"}]}';
 		
 		//Agrego el augmenter aca, hacer un metodo nuevo y dividir responsabilidades
-		el = document.getElementById("div_editor");
+		el = document.getElementById("div_editor_container");
         el.style.visibility = "visible";	   
         
 		(this.value === "1") ? view.render(el, add_task.inflate()) : view.render(el, add_augmenter.inflate());
@@ -229,7 +214,7 @@ var Recorder = {
 	  
 		   var close_edit = document.getElementById("table_edit");
 	       
-	 	  el = document.getElementById("div_editor");
+	 	  el = document.getElementById("div_editor_container");
 	 	  el.style.visibility = (el.style.visibility == "visible") ? "hidden" : "visible";
 	  	  that.firstChild.selected = true;
 	 	};
@@ -295,9 +280,10 @@ var Recorder = {
 
     //Trae el objeto que corresponde, segun el tipo de Tarea y le delega a el la tarea de armar los parametros para armar
     //el HTML ( objeto JSON)
+	el = document.getElementById("div_inflate");
+	var edition_container = document.getElementById("div_editor_container");
 
-	el = document.getElementById("div_editor");
-	el.style.visibility = (el.style.visibility == "visible") ? "hidden" : "visible";
+	edition_container.style.visibility = (edition_container.style.visibility == "visible") ? "hidden" : "visible";
 	  
 	var table_row = x.parentNode.parentNode;  
 	//JUNIO 21
@@ -338,37 +324,36 @@ var Recorder = {
 	/*****/
 	var close_edit = document.createElement("input");
 	close_edit.type = "button";
-	close_edit.value = "X";
+	close_edit.value = "Close";
 	
 	close_edit.onclick = function(){ 
-	   var close_edit = document.getElementById("table_edit");
-	   el = document.getElementById("div_editor");
+	   //var close_edit = document.getElementById("table_edit");
+	   el = document.getElementById("div_editor_container");
 	   el.style.visibility = (el.style.visibility == "visible") ? "hidden" : "visible";
 	}
 	/****/
-	el.appendChild(close_edit); 
+	
 
 	var edit_button = document.createElement('input');
 	edit_button.type = "button";
-	edit_button.value = "E";
+	edit_button.value = "Edit";
+	
 	edit_button.onclick = function(){
     //JUNIO 21 - Aca deberia ser dependiendo el objeto
 	//TEMP, Hasta que no guarde bien el JSON 
 	//ACA tengo que usar el metodo de la tarea que instancie y no el editor, el editor que se encargue solamente de 
 	//objetos json
 	iTask.id = table_row.id; //--> Parche!!!! 
-	//console.debug('iTask.htmlToJson(el)');
-	//console.debug(iTask.htmlToJson(el));
-	//console.debug('iTask.htmlToJson(el)');
 	localStorageManager.setObjectR(iTask.htmlToJson(el));
 
-    el = document.getElementById("div_editor");
+    el = document.getElementById("div_editor_container");
     el.style.visibility = "hidden";
   	
 	};
 
 	el.appendChild(edit_button); 
-   
+   	el.appendChild(close_edit); 
+
 	}
 	/**  
 	* Dispara el handler de record
@@ -581,10 +566,7 @@ if( arr_ls.length == 0){
 	} 
 	,init: function(){
 	
-
-	//this.createHeaderConsole(); 
 	RConsole.init();
-	this.createEditionContainer();
 	Recorder.refresh();
 
 	}
@@ -596,10 +578,40 @@ if( arr_ls.length == 0){
 */
 var RConsole = {
 	/**
+	* @method createEditionContainer
+	*/
+	 createEditionContainer: function(){
+	
+	var div_editor_container = document.createElement("div");	
+	div_editor_container.id = "div_editor_container";
+	div_editor_container.style.cssText="visibility: hidden;position:absolute;width:200px;height:200px;top:30%;left:50%;margin-top:-100px;margin-left:-100px;background-color:rgb(225, 218, 185);border: solid black;";
+	//div_editor_container.style.cssText="position:absolute;width:200px;height:200px;top:20%;left:50%;margin-top:-100px;margin-left:-100px;background-color:red";
+	
+
+	var div_editor_header = document.createElement("div");	
+	div_editor_header.id = "div_editor_header";
+	div_editor_header.style.cssText="";
+
+    var header_title = document.createTextNode('Task Editor');
+	div_editor_header.appendChild(header_title);
+
+	
+	var div_inflate = document.createElement("div");	
+	div_inflate.id = "div_inflate";
+
+
+    
+    // div_consola.style.visibility = "hidden";
+    div_editor_container.appendChild(div_editor_header);
+    div_editor_container.appendChild(div_inflate);
+	//div_consola.appendChild(div_editor);
+	return div_editor_container;
+	}
+	/**
 	* 
 	* @method createButton
 	*/
-	createButton: function(aValue,anId,attributes){
+	,createButton: function(aValue,anId,attributes){
 
 		var aButton = document.createElement("input");	
 	    aButton.setAttribute('type','button');
@@ -748,13 +760,14 @@ var RConsole = {
 	 	var clearButton = this.createClearButton(); 
 	 	var addTaksSelect = this.createaddTasksSelect();
 	 	var loadButton = this.createShowLocalStorageButton();
+
 		
 		var container = this.createHeaderContainer();
 		var show_hide = this.createShowHide();
 		var container_header = this.createHeader();
 		var table_console_container = this.createTableContainer();
 		var table_console = this.createTable();
-
+		var editor_container = this.createEditionContainer();
 	 	
 	 	container_header.appendChild(stopButton);
 	 	container_header.appendChild(recordButton);
@@ -775,6 +788,7 @@ var RConsole = {
 		    }else{
 		      document.body.appendChild(container);
 		}
+		body.appendChild(editor_container);
 	 	////console.debug('15. Agrega la pestana show/hide');    	
 		body.appendChild(show_hide); 
     	body.style.marginLeft = "400px";

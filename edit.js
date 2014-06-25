@@ -1,4 +1,7 @@
-
+/**
+ * 
+ * @module EditTasks
+*/
 /**
 * @class selectElement
 */
@@ -63,9 +66,8 @@ var inputElement = {
 var view = {
       render: function(target, elements) {
       
-      ////console.debug(target.firstChild);
       if(target){
-      target.firstChild.innerHTML="";
+      //target.firstChild.innerHTML="";
 
       target.innerHTML = "";
       }

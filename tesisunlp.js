@@ -11,7 +11,6 @@
  */
  /**
  * @class Manager
- * @extends BPMA
  */
 var Manager = (function () {
 	"use strict";
@@ -118,7 +117,6 @@ var Manager = (function () {
                        }
             	}
         	}
-
         /**
         * @method start
         */  
@@ -153,7 +151,8 @@ var Manager = (function () {
     		}
         /**
         * @method getCurrentPrimitiveTasks
-        */  //Que me devuelva las que estan en estado 0, para ejectuar
+        */  
+        //Que me devuelva las que estan en estado 0, para ejectuar
         	,getCurrentPrimitiveTasks: function(){
         	return currentPrimitiveTasks;
         	}
@@ -175,9 +174,8 @@ var Manager = (function () {
 			   		obj.classList.remove("cssClass");
 			   }, 1000);
 			}
-        /**
-        * @method executeNextTaskWithTimer
-        */ ,hayTareas: function(){
+         
+        ,hayTareas: function(){
 
             var a = localStorageManager.getCurrentTasks();
             //console.debug('hay tareas?');
@@ -194,73 +192,48 @@ var Manager = (function () {
             }
             return false;
             }
-            //esto no se si funciona bien
+        
+        /**
+        * @method executeNextTaskWithTimer
+        */
 			,executeNextTaskWithTimer: function(){
 
             //Tiene que traer las tareas del localStorage
             var arr_tareas =  Manager.getCurrentPrimitiveTasks();
-            //console.debug(arr_tareas);
             
-                setTimeout(function () {    
-                
+            //Esto hay que modificarlo, no me gusta como esta
+            //Si el indice es igual( ya llego a ejecutar todas las tareas)
 
-                var indice = Manager.getIndice();	
-                
-                if(arr_tareas[indice].state == 0)
-                    console.debug('ejecuta esta tarea');
-                    console.debug(arr_tareas[indice]);
-                    console.debug('de todo esto');
-                    console.debug(arr_tareas);
-                    //console.debug(indice);
-                    console.debug('ejecuta esta tarea');
-                    
-                    arr_tareas[indice].execute();
-                    //Finalizo
-                    if(arr_tareas.length == 1) return false;
+                setTimeout(
+                    function () {    
 
-            //Esto esta mal, tiene que ejecutar mientras haya tareas en estado cero
-            //        if (indice < arr_tareas.length) { 
-                    Manager.incrementIndice(); 
-                    Manager.executeNextTaskWithTimer();                     
-                    
-              /*      }else{
-                    return false;
-                    }                        */
-                }, 1000);
+                        var indice = Manager.getIndice();           
+                        
+                        
+                        if(typeof arr_tareas[indice] == "undefined") {
+                            //Asumo que finalizo el procedimiento
+                            //Fijate un metodo que trae la siguiente tarea 
+                            //La finalizacion del procedimiento pone en cero el estado y sale.    
+                            localStorage.setItem("BPMEXECUTION",0);
+                            return false;
+                        }
+                        //siempre trae las tareas con estado 0, este if esta al pedo.
+                     
+                            var task = arr_tareas[indice]; 
+                            task.execute();
+                            
+                            Manager.incrementIndice(); 
+                            Manager.executeNextTaskWithTimer();                     
+
+                    }
+
+                , 1000);
             }
             ,init: function(){
 
              //Si esta ejecutando 
-             
-
-            //Inicializo el Manager (Dependiendo todos los estados)
-            var arr_currTasks = localStorageManager.getCurrentTasks();
-            //console.debug('Traigo las tareas');
-            //console.debug(arr_currTasks);
-            var i;
-            for (i=0;i < arr_currTasks.length ;i++){
-            ////console.debug(arr_currTasks[i]);
-            try{
-            //Esto tambien esta mal, hay que sacarlo de otra manera, se soluciona cuando tenga el objeto JSON correspondiente
-            var xpath = arr_currTasks[i].atributos[1].value;
-            var valor = arr_currTasks[i].atributos[2].value;
-            }catch(err){
-            //////console.debug('error atributos');
-            }
-            //Agrego la tarea y el objeto se encarga de ejecutar lo que sea, con la configuracion que sea
-
-            try{
+             //Este metodo es para inicializar el Manager y para que contemple todos los escenarios
             
-            Manager.addPrimitiveTask(arr_currTasks[i].id,arr_currTasks[i].type,xpath,valor,'',0,arr_currTasks[i].state);
-        
-            }catch(err){
-                //////console.debug(err);
-            }
-
-            }
-            //console.debug(Manager.getCurrentPrimitiveTasks() );
-
-
             }
         };
 }());
@@ -269,6 +242,7 @@ var Manager = (function () {
 
 //===========================================================
 /**
+* Este Manager en algun momento tendria que generalizarse y persistir en otros servidores
 * @class localStorageManager
 */
 localStorageManager = {
@@ -451,7 +425,19 @@ head.appendChild(style);
 
 //Inicia el Recorder
 Recorder.init();
-draggable('div_editor');
+draggable('div_editor_container');
+
+//1. Verifico si esta ejecutando
+var ejecucion = localStorage.getItem("BPMEXECUTION")
+console.log('ejecutando:');
+console.log(localStorage.getItem("BPMEXECUTION"));
+
+if(ejecucion == 1){
+//console.debug('ejecuta');    
+    //Parche!
+    var el = document.getElementById('play_procedure').click();
+
+}
 
 
 //Guardo el contenedor de Tareas
@@ -468,17 +454,6 @@ var grabando = localStorage.getItem("BPMRECORDING")
     if(grabando == 1){
     //Parche!
     var el = document.getElementById('start_record').click();
-    }
-var ejecucion = localStorage.getItem("BPMEXECUTION")
-console.log('ejecutando:');
-console.log(localStorage.getItem("BPMEXECUTION"));
-
-if(ejecucion == 1){
-//console.debug('ejecuta');    
-    //Parche!
-    var el = document.getElementById('play_procedure').click();
-    //console.debug('--------------------RELOAD********---------');
-        //console.debug('esta en ejecucion');
     }
 
     console.log("Contenido:");

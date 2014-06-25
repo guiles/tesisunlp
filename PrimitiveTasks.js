@@ -42,6 +42,7 @@ console.debug('ejecuto esto');
     var node = iterator.iterateNext();
     console.debug(node);
     console.debug('esta?');
+    if(node){
     if(this.tipo == 1){ //Si es Manual, pide valor
     node.focus();
     var value = prompt("Ingrese Valor","");
@@ -50,7 +51,9 @@ console.debug('ejecuto esto');
         Manager.highlightElement(node)
         node.value= this.value;   
     }
-
+    }else{
+        return false;
+    }
     //si salio todo ok modifico el estado de la tarea ( por ahora asumo que sale ok)
     this.finalizo(this.id);
 
