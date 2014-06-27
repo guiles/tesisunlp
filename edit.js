@@ -3,6 +3,39 @@
  * @module EditTasks
 */
 /**
+* @class optionsElement
+*/
+var optionsElement = {
+    attributes:{}
+    ,id: '' 
+    ,label:''
+    ,options:[]
+    ,render: function(){
+    
+    //select.id="id_options";
+    //console.debug(select);
+    //return select;
+        
+        var div_select = document.createElement('div');
+        div_select.id = this.id;
+        var label = document.createTextNode(this.label);
+            div_select.appendChild(label);
+        var select = document.createElement('select');
+        
+        //var len = this.attributes.choices.length;
+        var len = this.options.length;
+        for (var i = 0; i < len; i++) {
+        var option = document.createElement('option');
+            option.text = this.options[i][0];
+            option.value = this.options[i][1];
+            select.appendChild(option);
+        }
+    
+        div_select.appendChild(select);    
+    return div_select;
+    }
+}
+/**
 * @class selectElement
 */
 var selectElement = {
@@ -65,7 +98,7 @@ var inputElement = {
 */
 var view = {
       render: function(target, elements) {
-      
+      console.debug(elements);
       if(target){
       //target.firstChild.innerHTML="";
 

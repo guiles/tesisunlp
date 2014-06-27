@@ -425,7 +425,7 @@ head.appendChild(style);
 
 //Inicia el Recorder
 Recorder.init();
-draggable('div_editor_container');
+//draggable('div_editor_container');
 
 //1. Verifico si esta ejecutando
 var ejecucion = localStorage.getItem("BPMEXECUTION")

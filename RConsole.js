@@ -171,7 +171,15 @@ var Recorder = {
 	*/
 	,addTask: function() {
 
-		var that = this;
+	console.debug('infla el editor para crear las tareas, por ahora primitivas');
+	//Le pongo otro div para inflar
+	var inner_add_tasks = document.createElement('div');
+	inner_add_tasks.id = 'id_inflate_tasks';
+
+	var el_inflate = document.getElementById("div_inflate");
+		el_inflate.appendChild(inner_add_tasks); 
+
+				var that = this;
 				var save_task = document.createElement("input");
 				save_task.type = "button";
 				save_task.value = "Save";
@@ -195,15 +203,56 @@ var Recorder = {
 				that.firstChild.selected = true;
 				Recorder.refresh();
 				};
+		//Voy a hardcodear por ahora, pero deberia sacarlo de algun archivo de configuracion
+		//todas las tareas primitivas		
 		//instancio la vista ... podria sacar de constantes los elementos basicos
-		var add_task = Object.create(inflater);
-		add_task.properties = '{"type":"FillInputTask","atributos":[{"label":"xPath","el_type":"input","value":"/html[1]/body[1]/div[2]/form[1]/input[2]","id":"id_xpath"},{"label":"Valor","el_type":"input","value":"333","id":"id_value"}]}';
-		
-		//Agrego el augmenter aca, hacer un metodo nuevo y dividir responsabilidades
-		el = document.getElementById("div_editor_container");
-        el.style.visibility = "visible";	   
+
+    	var elements = new Array();
+    	/*var input_el = Object.create(inputElement);
+    	input_el.label='A';
+    	input_el.id='a';
+    	input_el.value='a';
+*/
+        var option_el = Object.create(optionsElement);
+        option_el.id = 'id_primitive_task';
+        option_el.label = "Primitive Task";
+        option_el.options[0] = ['Select Task',0]; //deberia ser disabled
+        option_el.options[1] = ['FillInputTask',1];
+        option_el.options[2] = ['TextAreaTask',2];
+
         
-		(this.value === "1") ? view.render(el, add_task.inflate()) : view.render(el, add_augmenter.inflate());
+        
+        //var add_task = Object.create(inflater);
+        elements.push(option_el);
+      //  elements.push(input_el);
+		var el_container = document.getElementById("div_editor_container");
+		el_container.style.visibility = "visible";
+		
+		view.render(id_inflate_tasks, elements);	
+        //Aca le pongo un onchange y el callbak infla la tarea correspondiente.
+        var el_sel = document.getElementById("id_primitive_task");
+		//console.debug(el_sel);
+		el_sel.addEventListener('change',function(x){
+		console.debug('change');
+		//var el_inflate = document.getElementById("id_inflate_tasks");
+		//elements.push(option_el);
+		var task;
+		console.debug(x.target.options.selectedIndex);
+		if(x.target.options.selectedIndex == 1){ //Si Es FillInputTask
+		task = new FillInputTask();
+		}
+		 //var task1 = localStorageManager.getObject(1);
+		//console.debug( task1 );
+		console.debug( JSON.parse( task.toJson() ) );
+		var task1 = JSON.parse( task.toJson() );
+		//iTask.toHtml(JSON.stringify(task));
+		/*var o_attr = JSON.parse(attr);*/
+		console.debug('Tengo que pasarle esto formateado');
+		console.debug(JSON.stringify(task1)); 
+		
+		view.render(el_inflate, task.toHtml(JSON.stringify(task1)));	
+
+		});
 
 		var close_edit = document.createElement("input");
 		close_edit.type = "button";
@@ -211,18 +260,19 @@ var Recorder = {
 		//close_edit.setAttribute('class','class_button');
 
 		close_edit.onclick = function(){ 
-	  
-		   var close_edit = document.getElementById("table_edit");
-	       
-	 	  el = document.getElementById("div_editor_container");
-	 	  el.style.visibility = (el.style.visibility == "visible") ? "hidden" : "visible";
-	  	  that.firstChild.selected = true;
+	  	  el = document.getElementById("div_editor_container");
+	 	  el.style.visibility = "hidden";
+	 	  that.firstChild.selected = true;
 	 	};
 
-	 	//Agrego al final los dos botones
-		el.appendChild(save_task);
-		el.appendChild(close_edit);
-
+	 	var div_footer = document.getElementById("div_editor_footer");
+	 	div_footer.innerHTML="";
+		//Agrego al final los dos botones
+		div_footer.appendChild(save_task);
+		div_footer.appendChild(close_edit);
+		
+		//el_container.appendChild(div_footer);
+		
 	  	var select_xpath = document.getElementById("input_xpath");
 
 	/*	select_xpath.addEventListener('focus',function(){ var high = new Highlighter(); high.init();},true);
@@ -232,7 +282,7 @@ var Recorder = {
 		select_xpath.id = "select_xpath";
 		select_xpath.value = "X";
 		//select_xpath.setAttribute('class','class_button');
-	 	el.appendChild(select_xpath);
+	 	//el.appendChild(select_xpath);
 		select_xpath.onclick = function(){ 
 	  
 	  
@@ -260,17 +310,10 @@ var Recorder = {
 
 	 var input_xpath = document.getElementById("input_xpath");
 	// ////console.debug('nananana');
-	 var temp = input_xpath.parentNode;
+	// var temp = input_xpath.parentNode;
 
-	 temp.appendChild(select_xpath);
-	 //////console.debug(temp);
-
-	//	table_edit.appendChild(select_xpath);
-
-		//view.render(div_add, add_task.inflate());
-		//div_add.appendChild(save_task);
-		//div_add.appendChild(close_edit);
-		
+	 //temp.appendChild(select_xpath);
+	 
 	}
 	/**  
 	* si bien esto es repetir codigo, por ahora lo hago asi hasta que tenga un diseño mas copado, (Ver Imagen del Pizarron)
@@ -351,8 +394,10 @@ var Recorder = {
   	
 	};
 
-	el.appendChild(edit_button); 
-   	el.appendChild(close_edit); 
+    var div_footer = document.getElementById("div_editor_footer");
+    div_footer.innerHTML="";
+	div_footer.appendChild(edit_button); 
+   	div_footer.appendChild(close_edit); 
 
 	}
 	/**  
@@ -599,11 +644,14 @@ var RConsole = {
 	var div_inflate = document.createElement("div");	
 	div_inflate.id = "div_inflate";
 
-
+	var div_editor_footer = document.createElement("div");	
+	div_editor_footer.id = "div_editor_footer";
+	div_editor_footer.style.cssText="";
     
     // div_consola.style.visibility = "hidden";
     div_editor_container.appendChild(div_editor_header);
     div_editor_container.appendChild(div_inflate);
+    div_editor_container.appendChild(div_editor_footer);
 	//div_consola.appendChild(div_editor);
 	return div_editor_container;
 	}
