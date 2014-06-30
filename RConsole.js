@@ -171,109 +171,87 @@ var Recorder = {
 	*/
 	,addTask: function() {
 
-	console.debug('infla el editor para crear las tareas, por ahora primitivas');
-	//Le pongo otro div para inflar
-	var inner_add_tasks = document.createElement('div');
-	inner_add_tasks.id = 'id_inflate_tasks';
 
-	var el_inflate = document.getElementById("div_inflate");
-		el_inflate.appendChild(inner_add_tasks); 
+	var el_add_inflate = document.getElementById("div_add_inflate");
+	
+	var that = this;
+	var save_task = document.createElement("input");
+	save_task.type = "button";
+	save_task.value = "Save";
+	//save_task.setAttribute('class','class_button');
 
-				var that = this;
-				var save_task = document.createElement("input");
-				save_task.type = "button";
-				save_task.value = "Save";
-				//save_task.setAttribute('class','class_button');
+	save_task.onclick = function(x){ 
+	//Que tipo de tarea tiene que guardar!?
+	console.debug('guarda esto en el localStorage');
+	el = document.getElementById("div_add_inflate");
+	var task = new FillInputTask();
+	var j = task.htmlToJson(el);
 
-				save_task.onclick = function(){ 
-				//Podria utilizar otro elemento y no el div overlay  <-- borrar 			  		
-			    el = document.getElementById("div_editor_container");
-	    		el.style.visibility = (el.style.visibility == "visible") ? "hidden" : "visible";
-				var temp =  document.getElementById("table_edit");
-			    var array_nodes = temp.childNodes;
-	        	id = localStorage.length + 1;
+	console.debug(j);
+	localStorageManager.insert(j);
+	Recorder.refresh();
 
-	        	var obj1 = new Object();
-	        	obj1.type = array_nodes[0].childNodes[1].value;
-	        	obj1.xPath  = array_nodes[1].childNodes[1].value;
-	        	obj1.value = array_nodes[2].childNodes[1].value;
-	        	obj1.tipo = 0; //Tengo que traducir el Yes/No
-	        	var obj_value = JSON.stringify(obj1);
-		       	localStorage.setItem(id,obj_value);
-				that.firstChild.selected = true;
-				Recorder.refresh();
-				};
-		//Voy a hardcodear por ahora, pero deberia sacarlo de algun archivo de configuracion
-		//todas las tareas primitivas		
-		//instancio la vista ... podria sacar de constantes los elementos basicos
+	return false;
+	//Podria utilizar otro elemento y no el div overlay  <-- borrar   		
+    el = document.getElementById("div_add_container");
+	el.style.visibility = (el.style.visibility == "visible") ? "hidden" : "visible";
+	var temp =  document.getElementById("table_edit");
+    var array_nodes = temp.childNodes;
+	id = localStorage.length + 1;
 
-    	var elements = new Array();
-    	/*var input_el = Object.create(inputElement);
-    	input_el.label='A';
-    	input_el.id='a';
-    	input_el.value='a';
-*/
-        var option_el = Object.create(optionsElement);
-        option_el.id = 'id_primitive_task';
-        option_el.label = "Primitive Task";
-        option_el.options[0] = ['Select Task',0]; //deberia ser disabled
-        option_el.options[1] = ['FillInputTask',1];
-        option_el.options[2] = ['TextAreaTask',2];
+	var obj1 = new Object();
+	obj1.type = array_nodes[0].childNodes[1].value;
+	obj1.xPath  = array_nodes[1].childNodes[1].value;
+	obj1.value = array_nodes[2].childNodes[1].value;
+	obj1.tipo = 0; //Tengo que traducir el Yes/No
+	var obj_value = JSON.stringify(obj1);
+	localStorage.setItem(id,obj_value);
+	that.firstChild.selected = true;
+	Recorder.refresh();
 
-        
-        
-        //var add_task = Object.create(inflater);
-        elements.push(option_el);
-      //  elements.push(input_el);
-		var el_container = document.getElementById("div_editor_container");
-		el_container.style.visibility = "visible";
+	};
 		
-		view.render(id_inflate_tasks, elements);	
-        //Aca le pongo un onchange y el callbak infla la tarea correspondiente.
-        var el_sel = document.getElementById("id_primitive_task");
-		//console.debug(el_sel);
-		el_sel.addEventListener('change',function(x){
-		console.debug('change');
-		//var el_inflate = document.getElementById("id_inflate_tasks");
-		//elements.push(option_el);
-		var task;
-		console.debug(x.target.options.selectedIndex);
-		if(x.target.options.selectedIndex == 1){ //Si Es FillInputTask
-		task = new FillInputTask();
-		}
-		 //var task1 = localStorageManager.getObject(1);
-		//console.debug( task1 );
-		console.debug( JSON.parse( task.toJson() ) );
-		var task1 = JSON.parse( task.toJson() );
-		//iTask.toHtml(JSON.stringify(task));
-		/*var o_attr = JSON.parse(attr);*/
-		console.debug('Tengo que pasarle esto formateado');
-		console.debug(JSON.stringify(task1)); 
-		
-		view.render(el_inflate, task.toHtml(JSON.stringify(task1)));	
+	var el_container = document.getElementById("div_add_container");
+	el_container.style.visibility = "visible";
+	
+	
+    //Traigo el select de las tareas y modifico el HTML segun el tipo de tarea
+    var el_sel = document.getElementById("id_primitive_task");
+	el_sel.addEventListener('change',function(x){
+	console.debug('change');
+	var task;
+	console.debug(x.target.options.selectedIndex);
+	if(x.target.options.selectedIndex == 1){ //Si Es FillInputTask
+	task = new FillInputTask();
+	}else if(x.target.options.selectedIndex == 2){
+	task = new TextAreaTask();
+	}
 
-		});
+	view.render(el_add_inflate, task.toHtml(task.emptyToJson()));	
 
-		var close_edit = document.createElement("input");
-		close_edit.type = "button";
-		close_edit.value = "Close";
-		//close_edit.setAttribute('class','class_button');
+	});
 
-		close_edit.onclick = function(){ 
-	  	  el = document.getElementById("div_editor_container");
-	 	  el.style.visibility = "hidden";
-	 	  that.firstChild.selected = true;
-	 	};
+	var close_edit = document.createElement("input");
+	close_edit.type = "button";
+	close_edit.value = "Close";
+	//close_edit.setAttribute('class','class_button');
 
-	 	var div_footer = document.getElementById("div_editor_footer");
-	 	div_footer.innerHTML="";
-		//Agrego al final los dos botones
-		div_footer.appendChild(save_task);
-		div_footer.appendChild(close_edit);
-		
-		//el_container.appendChild(div_footer);
-		
-	  	var select_xpath = document.getElementById("input_xpath");
+	close_edit.onclick = function(){ 
+  	  el = document.getElementById("div_add_container");
+ 	  el.style.visibility = "hidden";
+ 	  that.firstChild.selected = true;
+ 	};
+
+ 	var div_footer = document.getElementById("div_add_footer");
+ 	div_footer.innerHTML="";
+	//Agrego al final los dos botones
+	div_footer.appendChild(save_task);
+	div_footer.appendChild(close_edit);
+	
+	//el_container.appendChild(div_footer);
+	
+	// Podria ser que se oculte el 
+  	var select_xpath = document.getElementById("input_xpath");
 
 	/*	select_xpath.addEventListener('focus',function(){ var high = new Highlighter(); high.init();},true);
 		select_xpath.addEventListener('blur',function(){ var high = new Highlighter(); high.stop();},true);*/
@@ -284,34 +262,42 @@ var Recorder = {
 		//select_xpath.setAttribute('class','class_button');
 	 	//el.appendChild(select_xpath);
 		select_xpath.onclick = function(){ 
-	  
-	  
+	  var high = new Highlighter();
+
+	  var el = document.getElementById('div_add_container');
+	  el.style.visibility = 'hidden';
+	  high.init();
+
+	  document.addEventListener('dblclick',function(){
+	  	high.stop();
+	  	console.debug('clic clic clic');
+	  	var el = document.getElementById('div_add_container');
+	  	el.style.visibility = 'visible';
+	  });
 	  	//var select_xpath = document.getElementById("select_xpath");
-
-	  		//Para ver que ande el highlighter
-	 	 var input_xpath = document.getElementById("input_xpath");
-	 	 // //////console.debug(input_xpath.parentNode);
-
-	 	 ////console.debug('trae input_xpath');
-		 var high = new Highlighter();
-	
+	  	//Para ver que ande el highlighter
+	 	var input_xpath = document.getElementById("input_xpath");
+	 	
+	 	////console.debug('trae input_xpath');
 		
-		 if(select_xpath.value=='X'){
-		 	    	 high.init();
-		 	    	 select_xpath.value = "-"
+	
+		if(select_xpath.value=='X'){
+		 	    high.init();
+		 	    select_xpath.value = "-"
 		 	    	 //////console.debug(input_xpath);
 
-		 }else{
-		 	    	 high.stop();
-		 	    	 select_xpath.value = "XPathEvaluator"
-		 }
+		}else{
+		 	    high.stop();
+		 	    //select_xpath.value = "XPathEvaluator"
+		 	    el.style.visibility = 'visible';
+		}
 		 
 	 	};
 
 	 var input_xpath = document.getElementById("input_xpath");
 	// ////console.debug('nananana');
 	// var temp = input_xpath.parentNode;
-
+	div_footer.appendChild(select_xpath);
 	 //temp.appendChild(select_xpath);
 	 
 	}
@@ -622,10 +608,62 @@ if( arr_ls.length == 0){
 * @class RConsole
 */
 var RConsole = {
+		/**
+	* @method createEditionContainer
+	*/
+	 createAddContainer: function(){
+	
+	var div_add_container = document.createElement("div");	
+	div_add_container.id = "div_add_container";
+	div_add_container.style.cssText="visibility: hidden;position:absolute;width:200px;height:500px;top:30%;left:50%;margin-top:-100px;margin-left:-100px;background-color:rgb(225, 218, 185);border: solid black;";
+	//div_editor_container.style.cssText="position:absolute;width:200px;height:200px;top:20%;left:50%;margin-top:-100px;margin-left:-100px;background-color:red";
+	
+
+	var div_add_header = document.createElement("div");	
+	div_add_header.id = "div_add_header";
+	div_add_header.style.cssText="";
+
+    var header_title = document.createTextNode('Task Editor');
+	div_add_header.appendChild(header_title);
+
+	var div_select_tasks = document.createElement('div');
+	div_select_tasks.id = 'div_select_tasks';
+
+	var div_add_inflate = document.createElement("div");	
+	div_add_inflate.id = "div_add_inflate";
+
+	var div_add_footer = document.createElement("div");	
+	div_add_footer.id = "div_add_footer";
+	div_add_footer.style.cssText="";
+    
+    // div_consola.style.visibility = "hidden";
+    div_add_container.appendChild(div_add_header);
+    div_add_container.appendChild(div_select_tasks);
+    div_add_container.appendChild(div_add_inflate);
+    div_add_container.appendChild(div_add_footer);
+	//div_consola.appendChild(div_editor);
+
+	//=========================Agrego el Container
+	var el_select_inflate = document.getElementById("div_select_inflate");
+    var elements = new Array();
+    	
+    var option_el = Object.create(optionsElement);
+    	option_el.id = 'id_primitive_task';
+        option_el.label = "Primitive Task";
+        option_el.options[0] = ['Select Task',0]; //deberia ser disabled
+        option_el.options[1] = ['FillInputTask',1];
+        option_el.options[2] = ['TextAreaTask',2];
+
+        elements.push(option_el);
+      	view.render(div_select_tasks, elements);	
+	//==========================
+
+	return div_add_container;
+	}
 	/**
 	* @method createEditionContainer
 	*/
-	 createEditionContainer: function(){
+	 ,createEditionContainer: function(){
 	
 	var div_editor_container = document.createElement("div");	
 	div_editor_container.id = "div_editor_container";
@@ -816,6 +854,7 @@ var RConsole = {
 		var table_console_container = this.createTableContainer();
 		var table_console = this.createTable();
 		var editor_container = this.createEditionContainer();
+		var add_container = this.createAddContainer();
 	 	
 	 	container_header.appendChild(stopButton);
 	 	container_header.appendChild(recordButton);
@@ -836,7 +875,11 @@ var RConsole = {
 		    }else{
 		      document.body.appendChild(container);
 		}
+
+
+
 		body.appendChild(editor_container);
+		body.appendChild(add_container);
 	 	////console.debug('15. Agrega la pestana show/hide');    	
 		body.appendChild(show_hide); 
     	body.style.marginLeft = "400px";

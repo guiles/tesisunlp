@@ -166,6 +166,47 @@ FillInputTask.prototype.toJson = function(){
 
     return JSON.stringify(obj_task);
 }
+
+/**
+ * @method emptyToJson
+ */
+FillInputTask.prototype.emptyToJson = function(){
+//{"id":0,"type":"FillInputTask","state":0,"atributos":[{"label":"ID","el_type":"input","value":10,"id":"id"},{"label":"xPath","el_type":"input","id":"id_xpath"},{"label":"Valor","el_type":"input","id":"id_value"}]} 
+//Aqui armo el objeto JSON segun especifcaciones, que por ahora es igual que JUNIO 20 
+   var obj_task = new Object();
+    obj_task.id = 0 ;    
+    obj_task.type = 'FillInputTask';
+    obj_task.state = 0;
+    obj_task.atributos  = new Array();
+
+    var obj_id = new Object();
+    obj_id.label = 'ID';
+    obj_id.el_type = 'input';
+    obj_id.value = 0;
+    obj_id.id = 'id';
+
+    //@TEMP Creo objetos - y hardcodeo para ver como funciona
+    //{"label": "xPath","el_type": "input","value": "/html/","id": "id_xpath"}
+    var obj_xpath = new Object();
+    obj_xpath.label = 'xPath';
+    obj_xpath.el_type = 'input';
+    obj_xpath.value = '';
+    obj_xpath.id = 'id_xpath';
+    //{"label": "valor","el_type": "input","value": "un valor","id": "id_value"}
+    var obj_value = new Object();
+    
+    obj_value.label = 'Valor';
+    obj_value.el_type = 'input';
+    obj_value.value = '';
+    obj_value.id = 'id_value';
+
+    obj_task.atributos.push(obj_id);
+    obj_task.atributos.push(obj_xpath);
+    obj_task.atributos.push(obj_value);
+
+    return JSON.stringify(obj_task);
+}
+
 /**
 * override
 * @method toHtml
@@ -424,6 +465,53 @@ TextAreaTask.prototype.toJson = function(){
 
 return JSON.stringify(obj_task);
 }
+/**
+ * @method emptyToJson
+ */
+TextAreaTask.prototype.emptyToJson = function(){
+//{"id":0,"type":"FillInputTask","state":0,"atributos":[{"label":"ID","el_type":"input","value":10,"id":"id"},{"label":"xPath","el_type":"input","id":"id_xpath"},{"label":"Valor","el_type":"input","id":"id_value"}]} 
+//Aqui armo el objeto JSON segun especifcaciones, que por ahora es igual que JUNIO 20 
+   var obj_task = new Object();
+    obj_task.id = 0 ;    
+    obj_task.type = 'TextAreaTask';
+    obj_task.state = 0;
+    obj_task.atributos  = new Array();
+
+    var obj_id = new Object();
+    obj_id.label = 'ID';
+    obj_id.el_type = 'input';
+    obj_id.value = 0;
+    obj_id.id = 'id';
+
+    //@TEMP Creo objetos - y hardcodeo para ver como funciona
+    //{"label": "xPath","el_type": "input","value": "/html/","id": "id_xpath"}
+    var obj_xpath = new Object();
+    obj_xpath.label = 'xPath';
+    obj_xpath.el_type = 'input';
+    obj_xpath.value = '';
+    obj_xpath.id = 'id_xpath';
+    //{"label": "valor","el_type": "input","value": "un valor","id": "id_value"}
+    var obj_value = new Object();
+    
+    obj_value.label = 'Valor';
+    obj_value.el_type = 'input';
+    obj_value.value = '';
+    obj_value.id = 'id_value';
+
+  var aobj_id = new Object();
+    aobj_id.label = 'Otro campo';
+    aobj_id.el_type = 'input';
+    aobj_id.value = 'un valor';
+    aobj_id.id = 'un_id';
+
+    obj_task.atributos.push(obj_id);
+    obj_task.atributos.push(obj_xpath);
+    obj_task.atributos.push(obj_value);
+    obj_task.atributos.push(aobj_id);
+    
+    return JSON.stringify(obj_task);
+}
+
 
 TextAreaTask.prototype.toHtml = function(properties){
     //Por ahora le paso las propiedades para inflar, pero la misma tarea tiene que saber que elementos HTML tiene

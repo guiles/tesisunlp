@@ -98,10 +98,12 @@ var inputElement = {
 */
 var view = {
       render: function(target, elements) {
+      console.debug('----------------------');
+      console.debug(target);
       console.debug(elements);
+      console.debug('----------------------');
       if(target){
       //target.firstChild.innerHTML="";
-
       target.innerHTML = "";
       }
           for (var i = 0; i < elements.length; i++) {
@@ -310,8 +312,8 @@ var onClickHandler = function (event)
 {
     console.log("onClick event is trigger.");
     var xPath = Recorder.createXPathFromElement(event.target) ;
-    var el = document.getElementById("input_xpath");
+    var el = document.getElementById("id_xpath");
     el.value = xPath;
 
-    ////console.debug(xPath);
+  //  console.debug(xPath);
 }
