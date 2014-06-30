@@ -315,5 +315,4 @@ var onClickHandler = function (event)
     var el = document.getElementById("id_xpath");
     el.value = xPath;
 
-  //  console.debug(xPath);
 }

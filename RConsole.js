@@ -170,6 +170,18 @@ var Recorder = {
 	* @method addTask    
 	*/
 	,addTask: function() {
+	//===============================================//
+
+function handleSelectxPath(){
+		  var high = new Highlighter();
+
+		high.stop();
+	  	console.debug('clic clic clic');
+	  	var el = document.getElementById('div_add_container');
+	  	el.style.visibility = 'visible';
+}
+	//==============================================//
+
 
 
 	var el_add_inflate = document.getElementById("div_add_inflate");
@@ -240,6 +252,7 @@ var Recorder = {
   	  el = document.getElementById("div_add_container");
  	  el.style.visibility = "hidden";
  	  that.firstChild.selected = true;
+ 	  document.removeEventListener('dblclick',handleSelectxPath,false);
  	};
 
  	var div_footer = document.getElementById("div_add_footer");
@@ -268,12 +281,7 @@ var Recorder = {
 	  el.style.visibility = 'hidden';
 	  high.init();
 
-	  document.addEventListener('dblclick',function(){
-	  	high.stop();
-	  	console.debug('clic clic clic');
-	  	var el = document.getElementById('div_add_container');
-	  	el.style.visibility = 'visible';
-	  });
+	  document.addEventListener('dblclick',handleSelectxPath,false);
 	  	//var select_xpath = document.getElementById("select_xpath");
 	  	//Para ver que ande el highlighter
 	 	var input_xpath = document.getElementById("input_xpath");
