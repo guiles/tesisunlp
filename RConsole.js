@@ -390,6 +390,8 @@ function handleSelectxPath(){
 
     var div_footer = document.getElementById("div_editor_footer");
     div_footer.innerHTML="";
+	var el_hr = document.createElement('hr');
+	div_footer.appendChild(el_hr);
 	div_footer.appendChild(edit_button); 
    	div_footer.appendChild(close_edit); 
 
@@ -675,7 +677,7 @@ var RConsole = {
 	
 	var div_editor_container = document.createElement("div");	
 	div_editor_container.id = "div_editor_container";
-	div_editor_container.style.cssText="visibility: hidden;position:absolute;width:200px;height:200px;top:30%;left:50%;margin-top:-100px;margin-left:-100px;background-color:rgb(225, 218, 185);border: solid black;";
+	div_editor_container.style.cssText="visibility: hidden;position:absolute;width:auto;height:auto;top:30%;left:50%;margin-top:-100px;margin-left:-100px;background-color:rgb(225, 218, 185);border: solid black;";
 	//div_editor_container.style.cssText="position:absolute;width:200px;height:200px;top:20%;left:50%;margin-top:-100px;margin-left:-100px;background-color:red";
 	
 
@@ -683,12 +685,25 @@ var RConsole = {
 	div_editor_header.id = "div_editor_header";
 	div_editor_header.style.cssText="";
 
-    var header_title = document.createTextNode('Task Editor');
-	div_editor_header.appendChild(header_title);
-
+	var el_hr = document.createElement('hr');
 	
+    var header_title = document.createTextNode('Task Editor');
+	div_editor_header.appendChild(header_title);	
+	div_editor_header.appendChild(el_hr);
+	
+	var div_editor_preconditions = document.createElement("div");	
+	div_editor_preconditions.id = "div_editor_preconditions";
+	div_editor_preconditions.style.cssText="";
+	var header_title_preconditions = document.createTextNode('Preconditions');
+	var el_hr_preconditions = document.createElement('hr');
+	div_editor_preconditions.appendChild(header_title_preconditions);	
+	div_editor_preconditions.appendChild(el_hr_preconditions);
+
+
+
 	var div_inflate = document.createElement("div");	
 	div_inflate.id = "div_inflate";
+	
 
 	var div_editor_footer = document.createElement("div");	
 	div_editor_footer.id = "div_editor_footer";
@@ -696,9 +711,12 @@ var RConsole = {
     
     // div_consola.style.visibility = "hidden";
     div_editor_container.appendChild(div_editor_header);
+    div_editor_container.appendChild(div_editor_preconditions);
     div_editor_container.appendChild(div_inflate);
     div_editor_container.appendChild(div_editor_footer);
 	//div_consola.appendChild(div_editor);
+	
+	console.debug(div_editor_footer);
 	return div_editor_container;
 	}
 	/**
@@ -799,6 +817,7 @@ var RConsole = {
 	 	////console.debug('8. Crea el div consola header');
 		var div_consola_header = document.createElement("div");
 		div_consola_header.id = "consola_header"
+		
 		return div_consola_header;
 	 }
 	 ,createTableContainer: function(){
