@@ -1,6 +1,6 @@
 /**
  * @venus-library jasmine
- * @venus-code ../tesisunlp20052014.js
+ * @venus-code ../PrimitiveTasks.js
  */
 
 //PrimitiveTasksSpec.js

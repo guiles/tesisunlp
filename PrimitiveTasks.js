@@ -38,10 +38,13 @@ PrimitiveTask.prototype.execute = function(){
 
 console.debug('ejecuto esto');
 
+//Precondiciones
+console.debug('----------------------');
+console.debug(this);
+console.debug('----------------------');
     var iterator = document.evaluate(this.xPath,document,null,0,null);
     var node = iterator.iterateNext();
-    console.debug(node);
-    console.debug('esta?');
+    
     if(node){
     if(this.tipo == 1){ //Si es Manual, pide valor
     node.focus();
