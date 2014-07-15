@@ -143,6 +143,87 @@ var eventoChange = function(event){
 		}
 }
 
+var addInputTaskEvent = function(event){
+
+		var tipo = 0;
+		var el_id = event.target.id;
+		var el_value = event.target.value;
+		
+		if(el_id){
+		var sxPath = '//*[@id="'+el_id+'"]';
+		}else{ 
+		var sxPath = Recorder.createXPathFromElement(event.target) ;
+		}
+//console.debug(event.target.nodeName);
+	//event.target.nodeName
+	if(event.target.nodeName == 'INPUT'){ 	
+	
+	var	o_task = new FillInputTask();
+		o_task.xPath = sxPath;
+		o_task.value = el_value;
+		o_task.tipo = tipo;
+		localStorageManager.insert(o_task.toJson());
+		Recorder.refresh();
+	document.removeEventListener("change", addInputTaskEvent, false); 
+
+
+	}
+}
+
+var addTextAreaTaskEvent = function(event){
+
+		var tipo = 0;
+		var el_id = event.target.id;
+		var el_value = event.target.value;
+		
+		if(el_id){
+		var sxPath = '//*[@id="'+el_id+'"]';
+		}else{ 
+		var sxPath = Recorder.createXPathFromElement(event.target) ;
+		}
+//console.debug(event.target.nodeName);
+	//event.target.nodeName
+	if(event.target.nodeName == 'TEXTAREA'){ 	
+	
+	var	o_task = new TextAreaTask();
+		o_task.xPath = sxPath;
+		o_task.value = el_value;
+		o_task.tipo = tipo;
+		localStorageManager.insert(o_task.toJson());
+		Recorder.refresh();
+	document.removeEventListener("change", addTextAreaTaskEvent, false); 
+
+
+	}
+}
+var addSelectOptionTaskEvent = function(event){
+
+		var tipo = 0;
+		var el_id = event.target.id;
+		var el_value = event.target.value;
+		
+		if(el_id){
+		var sxPath = '//*[@id="'+el_id+'"]';
+		}else{ 
+		var sxPath = Recorder.createXPathFromElement(event.target) ;
+		}
+//console.debug(event.target.nodeName);
+	//event.target.nodeName
+	if(event.target.nodeName == 'SELECT'){ 	
+	
+	var	o_task = new TextAreaTask();
+		o_task.xPath = sxPath;
+		o_task.value = el_value;
+		o_task.tipo = tipo;
+		localStorageManager.insert(o_task.toJson());
+		Recorder.refresh();
+	document.removeEventListener("change", addSelectOptionTaskEvent, false); 
+
+
+	}
+}
+
+
 //======================================================================//
 /**
  * @class Recorder
@@ -166,54 +247,43 @@ var Recorder = {
 	return aButton;
 	}	
 	/**  
-	* Muestra ventana para agregar una tarea primitiva o un augmenter
+	* Muestra ventana para agregar una tarea primitiva y capturar ese evento
 	* @method addPrimitiveTask    
 	*/
 	,addPrimitiveTask: function() {
 
 	var el_add_inflate = document.getElementById("div_add_inflate");
-	
+		
 	var that = this;
-	var save_task = document.createElement("input");
-	save_task.type = "button";
-	save_task.value = "Save";
-	//save_task.setAttribute('class','class_button');
 
-	save_task.onclick = function(x){ 
-	//Que tipo de tarea tiene que guardar!?
-	console.debug('guarda esto en el localStorage');
-	el = document.getElementById("div_add_inflate");
-	var task = new FillInputTask();
-	var j = task.htmlToJson(el);
+	var ok_task = document.createElement("input");
+	ok_task.type = "button";
+	ok_task.value = "Ok";
+	ok_task.addEventListener('click',function(){
+	
+	that.firstChild.selected = true;	
+	var el = document.getElementById("div_add_container");
+	el.style.visibility = 'hidden';
+	//Despues mejoro el codigo, lo hago para terminar las funcionalidades
+	if(event_type == 1){
+		document.addEventListener("change", addInputTaskEvent, false); 
+	}else if(event_type == 2){
+		document.addEventListener("change", addTextAreaTaskEvent, false); 
+	}else if(event_type == 3){
+				console.debug('eeehhhh');
 
-	console.debug(j);
-	localStorageManager.insert(j);
-	Recorder.refresh();
-
-	return false;
-	//Podria utilizar otro elemento y no el div overlay  <-- borrar   		
-    el = document.getElementById("div_add_container");
-	el.style.visibility = (el.style.visibility == "visible") ? "hidden" : "visible";
-	var temp =  document.getElementById("table_edit");
-    var array_nodes = temp.childNodes;
-	id = localStorage.length + 1;
-
-	var obj1 = new Object();
-	obj1.type = array_nodes[0].childNodes[1].value;
-	obj1.xPath  = array_nodes[1].childNodes[1].value;
-	obj1.value = array_nodes[2].childNodes[1].value;
-	obj1.tipo = 0; //Tengo que traducir el Yes/No
-	var obj_value = JSON.stringify(obj1);
-	localStorage.setItem(id,obj_value);
-	that.firstChild.selected = true;
-	Recorder.refresh();
-
-	};
+		document.addEventListener("change", addSelectOptionTaskEvent, false); 
+	}else if(event_type == 4){
+		console.debug('eeehhhh');
+		//document.addEventListener("change", addInputTaskEvent, false); 
+	}
+	
+	
+	});
 		
 	var el_container = document.getElementById("div_add_container");
 	el_container.style.visibility = "visible";
-	
-	
+	var event_type;
     //Traigo el select de las tareas y modifico el HTML segun el tipo de tarea
     var el_sel = document.getElementById("id_primitive_task");
 	el_sel.addEventListener('change',function(x){
@@ -221,79 +291,39 @@ var Recorder = {
 	var task;
 	console.debug(x.target.options.selectedIndex);
 	if(x.target.options.selectedIndex == 1){ //Si Es FillInputTask
-	task = new FillInputTask();
+	console.debug('escucha evento indicado');
+	event_type = 1;
 	}else if(x.target.options.selectedIndex == 2){
-	task = new TextAreaTask();
+	console.debug('escucha otro evento indicado');
+	event_type = 2;
+	}else if(x.target.options.selectedIndex == 3){
+	console.debug('escucha otro evento indicado');
+	event_type = 3;
+	}else if(x.target.options.selectedIndex == 4){
+	console.debug('escucha otro evento indicado');
+	event_type = 4;
 	}
-
-	view.render(el_add_inflate, task.toHtml(task.emptyToJson()));	
 
 	});
 
-	var close_edit = document.createElement("input");
-	close_edit.type = "button";
-	close_edit.value = "Close";
-	//close_edit.setAttribute('class','class_button');
 
-	close_edit.onclick = function(){ 
-  	  el = document.getElementById("div_add_container");
- 	  el.style.visibility = "hidden";
- 	  that.firstChild.selected = true;
- 	  document.removeEventListener('dblclick',handleSelectxPath,false);
- 	};
+var close_task = document.createElement("input");
+	close_task.type = "button";
+	close_task.value = "Close";
+	close_task.addEventListener('click',function(){
+	
+	that.firstChild.selected = true;
 
+	var el = document.getElementById("div_add_container");
+	el.style.visibility = 'hidden';
+	//console.debug(el);
+	});
+	
  	var div_footer = document.getElementById("div_add_footer");
  	div_footer.innerHTML="";
 	//Agrego al final los dos botones
-	div_footer.appendChild(save_task);
-	div_footer.appendChild(close_edit);
-	
-	//el_container.appendChild(div_footer);
-	
-	// Podria ser que se oculte el 
-  	var select_xpath = document.getElementById("input_xpath");
-
-	/*	select_xpath.addEventListener('focus',function(){ var high = new Highlighter(); high.init();},true);
-		select_xpath.addEventListener('blur',function(){ var high = new Highlighter(); high.stop();},true);*/
-	var select_xpath = document.createElement("input");
-		select_xpath.type = "button";
-		select_xpath.id = "select_xpath";
-		select_xpath.value = "X";
-		//select_xpath.setAttribute('class','class_button');
-	 	//el.appendChild(select_xpath);
-		select_xpath.onclick = function(){ 
-	  var high = new Highlighter();
-
-	  var el = document.getElementById('div_add_container');
-	  el.style.visibility = 'hidden';
-	  high.init();
-
-	  document.addEventListener('dblclick',handleSelectxPath,false);
-	  	//var select_xpath = document.getElementById("select_xpath");
-	  	//Para ver que ande el highlighter
-	 	var input_xpath = document.getElementById("input_xpath");
-	 	
-	 	////console.debug('trae input_xpath');
-		
-	
-		if(select_xpath.value=='X'){
-		 	    high.init();
-		 	    select_xpath.value = "-"
-		 	    	 //////console.debug(input_xpath);
-
-		}else{
-		 	    high.stop();
-		 	    //select_xpath.value = "XPathEvaluator"
-		 	    el.style.visibility = 'visible';
-		}
-		 
-	 	};
-
-	 var input_xpath = document.getElementById("input_xpath");
-	// ////console.debug('nananana');
-	// var temp = input_xpath.parentNode;
-	div_footer.appendChild(select_xpath);
-	 //temp.appendChild(select_xpath);
+	div_footer.appendChild(ok_task);
+	div_footer.appendChild(close_task);
 	 
 	}
 	/**  
@@ -756,7 +786,7 @@ var RConsole = {
 	
 	var div_add_container = document.createElement("div");	
 	div_add_container.id = "div_add_container";
-	div_add_container.style.cssText="visibility: hidden;position:absolute;width:200px;height:500px;top:30%;left:50%;margin-top:-100px;margin-left:-100px;background-color:rgb(225, 218, 185);border: solid black;";
+	div_add_container.style.cssText="visibility: hidden;position:absolute;width:200px;height:auto;top:30%;left:50%;margin-top:-100px;margin-left:-100px;background-color:rgb(225, 218, 185);border: solid black;";
 	//div_editor_container.style.cssText="position:absolute;width:200px;height:200px;top:20%;left:50%;margin-top:-100px;margin-left:-100px;background-color:red";
 	
 
@@ -794,7 +824,9 @@ var RConsole = {
         option_el.options[0] = ['Select Task',0]; //deberia ser disabled
         option_el.options[1] = ['FillInputTask',1];
         option_el.options[2] = ['TextAreaTask',2];
-
+        option_el.options[3] = ['SelectOptionTask',3];
+		option_el.options[4] = ['ClickLinkTask',4];
+        
         elements.push(option_el);
       	view.render(div_select_tasks, elements);	
 	//==========================
