@@ -167,6 +167,137 @@ var Recorder = {
 	}	
 	/**  
 	* Muestra ventana para agregar una tarea primitiva o un augmenter
+	* @method addPrimitiveTask    
+	*/
+	,addPrimitiveTask: function() {
+
+	var el_add_inflate = document.getElementById("div_add_inflate");
+	
+	var that = this;
+	var save_task = document.createElement("input");
+	save_task.type = "button";
+	save_task.value = "Save";
+	//save_task.setAttribute('class','class_button');
+
+	save_task.onclick = function(x){ 
+	//Que tipo de tarea tiene que guardar!?
+	console.debug('guarda esto en el localStorage');
+	el = document.getElementById("div_add_inflate");
+	var task = new FillInputTask();
+	var j = task.htmlToJson(el);
+
+	console.debug(j);
+	localStorageManager.insert(j);
+	Recorder.refresh();
+
+	return false;
+	//Podria utilizar otro elemento y no el div overlay  <-- borrar   		
+    el = document.getElementById("div_add_container");
+	el.style.visibility = (el.style.visibility == "visible") ? "hidden" : "visible";
+	var temp =  document.getElementById("table_edit");
+    var array_nodes = temp.childNodes;
+	id = localStorage.length + 1;
+
+	var obj1 = new Object();
+	obj1.type = array_nodes[0].childNodes[1].value;
+	obj1.xPath  = array_nodes[1].childNodes[1].value;
+	obj1.value = array_nodes[2].childNodes[1].value;
+	obj1.tipo = 0; //Tengo que traducir el Yes/No
+	var obj_value = JSON.stringify(obj1);
+	localStorage.setItem(id,obj_value);
+	that.firstChild.selected = true;
+	Recorder.refresh();
+
+	};
+		
+	var el_container = document.getElementById("div_add_container");
+	el_container.style.visibility = "visible";
+	
+	
+    //Traigo el select de las tareas y modifico el HTML segun el tipo de tarea
+    var el_sel = document.getElementById("id_primitive_task");
+	el_sel.addEventListener('change',function(x){
+	console.debug('change');
+	var task;
+	console.debug(x.target.options.selectedIndex);
+	if(x.target.options.selectedIndex == 1){ //Si Es FillInputTask
+	task = new FillInputTask();
+	}else if(x.target.options.selectedIndex == 2){
+	task = new TextAreaTask();
+	}
+
+	view.render(el_add_inflate, task.toHtml(task.emptyToJson()));	
+
+	});
+
+	var close_edit = document.createElement("input");
+	close_edit.type = "button";
+	close_edit.value = "Close";
+	//close_edit.setAttribute('class','class_button');
+
+	close_edit.onclick = function(){ 
+  	  el = document.getElementById("div_add_container");
+ 	  el.style.visibility = "hidden";
+ 	  that.firstChild.selected = true;
+ 	  document.removeEventListener('dblclick',handleSelectxPath,false);
+ 	};
+
+ 	var div_footer = document.getElementById("div_add_footer");
+ 	div_footer.innerHTML="";
+	//Agrego al final los dos botones
+	div_footer.appendChild(save_task);
+	div_footer.appendChild(close_edit);
+	
+	//el_container.appendChild(div_footer);
+	
+	// Podria ser que se oculte el 
+  	var select_xpath = document.getElementById("input_xpath");
+
+	/*	select_xpath.addEventListener('focus',function(){ var high = new Highlighter(); high.init();},true);
+		select_xpath.addEventListener('blur',function(){ var high = new Highlighter(); high.stop();},true);*/
+	var select_xpath = document.createElement("input");
+		select_xpath.type = "button";
+		select_xpath.id = "select_xpath";
+		select_xpath.value = "X";
+		//select_xpath.setAttribute('class','class_button');
+	 	//el.appendChild(select_xpath);
+		select_xpath.onclick = function(){ 
+	  var high = new Highlighter();
+
+	  var el = document.getElementById('div_add_container');
+	  el.style.visibility = 'hidden';
+	  high.init();
+
+	  document.addEventListener('dblclick',handleSelectxPath,false);
+	  	//var select_xpath = document.getElementById("select_xpath");
+	  	//Para ver que ande el highlighter
+	 	var input_xpath = document.getElementById("input_xpath");
+	 	
+	 	////console.debug('trae input_xpath');
+		
+	
+		if(select_xpath.value=='X'){
+		 	    high.init();
+		 	    select_xpath.value = "-"
+		 	    	 //////console.debug(input_xpath);
+
+		}else{
+		 	    high.stop();
+		 	    //select_xpath.value = "XPathEvaluator"
+		 	    el.style.visibility = 'visible';
+		}
+		 
+	 	};
+
+	 var input_xpath = document.getElementById("input_xpath");
+	// ////console.debug('nananana');
+	// var temp = input_xpath.parentNode;
+	div_footer.appendChild(select_xpath);
+	 //temp.appendChild(select_xpath);
+	 
+	}
+	/**  
+	* Muestra ventana para agregar una tarea primitiva o un augmenter
 	* @method addTask    
 	*/
 	,addTask: function() {
@@ -801,7 +932,8 @@ var RConsole = {
 			opt.innerHTML = aOptions[j];
 			sAddTask.appendChild(opt);
 		}
-		sAddTask.addEventListener("change", Recorder.addTask , false); 
+		//sAddTask.addEventListener("change", Recorder.addTask , false); 
+		sAddTask.addEventListener("change", Recorder.addPrimitiveTask , false); 
 
 		return sAddTask;
 	 }
