@@ -211,7 +211,7 @@ var addSelectOptionTaskEvent = function(event){
 	//event.target.nodeName
 	if(event.target.nodeName == 'SELECT'){ 	
 	
-	var	o_task = new TextAreaTask();
+	var	o_task = new SelectOptionTask();
 		o_task.xPath = sxPath;
 		o_task.value = el_value;
 		o_task.tipo = tipo;
