@@ -250,7 +250,13 @@ var Recorder = {
 	* Muestra ventana para agregar una tarea primitiva y capturar ese evento
 	* @method addPrimitiveTask    
 	*/
-	,addPrimitiveTask: function() {
+	,addPrimitiveTask: function(event) {
+		
+		var id_selected = event.target.options[event.target.options.selectedIndex].value;
+		if(id_selected == 2){
+		Recorder.addAugmentedTask();
+		return false;	
+		}
 
 	var el_add_inflate = document.getElementById("div_add_inflate");
 		
@@ -277,8 +283,6 @@ var Recorder = {
 		console.debug('eeehhhh');
 		//document.addEventListener("change", addInputTaskEvent, false); 
 	}
-	
-	
 	});
 		
 	var el_container = document.getElementById("div_add_container");
@@ -330,7 +334,7 @@ var close_task = document.createElement("input");
 	* Muestra ventana para agregar una tarea primitiva o un augmenter
 	* @method addTask    
 	*/
-	,addTask: function() {
+	,addAugmentedTask: function() {
 	//===============================================//
 
 function handleSelectxPath(){

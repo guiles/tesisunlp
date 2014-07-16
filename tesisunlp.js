@@ -345,7 +345,6 @@ localStorageManager = {
     }
     ,removeElement: function(id){
         
-        
         //No me funciono el splice
         var tasks = localStorage.getItem("BPM");
         var array_temp = new Array();
