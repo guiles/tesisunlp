@@ -703,7 +703,13 @@ if( arr_ls.length == 0){
 			var id = this.parentNode.parentNode.id;
 			var row = this.parentNode.parentNode.sectionRowIndex;
 			document.getElementById('table_consola').deleteRow(row);
-			localStorage.removeItem(id);
+			
+			//localStorage.removeItem(id);
+			//
+			
+			//iTask.htmlToJson(el)
+			localStorageManager.removeElement(id);
+
 			}
 		};
 

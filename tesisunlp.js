@@ -343,6 +343,30 @@ localStorageManager = {
         }*/
     return currentTasks;
     }
+    ,removeElement: function(id){
+        
+        
+        //No me funciono el splice
+        var tasks = localStorage.getItem("BPM");
+        var array_temp = new Array();
+        var obj_tasks = JSON.parse(tasks);
+        console.debug('antes');
+        console.debug(obj_tasks);
+        var i;
+        for (i = 0; i < obj_tasks.length; i = i + 1) {
+       
+            if(obj_tasks[i].id == id) {
+                //console.debug(i);
+                //array.splice(i,1,obj_tasks);
+            }else{
+                array_temp.push(obj_tasks[i]);
+            }
+        };
+        //console.debug('despues');
+        //console.debug(array_temp);
+    localStorage.setItem("BPM",JSON.stringify(array_temp)); 
+    return true;
+    }
 }
 
 
