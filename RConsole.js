@@ -347,10 +347,8 @@ function handleSelectxPath(){
 }
 	//==============================================//
 
+	var div_add_aug_inflate = document.getElementById("div_add_aug_inflate");
 
-
-	var el_add_inflate = document.getElementById("div_add_inflate");
-	
 	var that = this;
 	var save_task = document.createElement("input");
 	save_task.type = "button";
@@ -360,51 +358,34 @@ function handleSelectxPath(){
 	save_task.onclick = function(x){ 
 	//Que tipo de tarea tiene que guardar!?
 	console.debug('guarda esto en el localStorage');
-	el = document.getElementById("div_add_inflate");
-	var task = new FillInputTask();
+	el = document.getElementById("div_add_aug_inflate");
+	
+	var task = new LinkATask();
 	var j = task.htmlToJson(el);
-
+	console.debug('inserta esto!');
 	console.debug(j);
 	localStorageManager.insert(j);
 	Recorder.refresh();
 
-	return false;
-	//Podria utilizar otro elemento y no el div overlay  <-- borrar   		
-    el = document.getElementById("div_add_container");
-	el.style.visibility = (el.style.visibility == "visible") ? "hidden" : "visible";
-	var temp =  document.getElementById("table_edit");
-    var array_nodes = temp.childNodes;
-	id = localStorage.length + 1;
-
-	var obj1 = new Object();
-	obj1.type = array_nodes[0].childNodes[1].value;
-	obj1.xPath  = array_nodes[1].childNodes[1].value;
-	obj1.value = array_nodes[2].childNodes[1].value;
-	obj1.tipo = 0; //Tengo que traducir el Yes/No
-	var obj_value = JSON.stringify(obj1);
-	localStorage.setItem(id,obj_value);
-	that.firstChild.selected = true;
-	Recorder.refresh();
-
 	};
 		
-	var el_container = document.getElementById("div_add_container");
+	var el_container = document.getElementById("div_add_aug_container");
 	el_container.style.visibility = "visible";
 	
 	
     //Traigo el select de las tareas y modifico el HTML segun el tipo de tarea
-    var el_sel = document.getElementById("id_primitive_task");
+    var el_sel = document.getElementById("id_augmented_task");
 	el_sel.addEventListener('change',function(x){
 	console.debug('change');
 	var task;
-	console.debug(x.target.options.selectedIndex);
+	//console.debug(x.target.options.selectedIndex);
 	if(x.target.options.selectedIndex == 1){ //Si Es FillInputTask
-	task = new FillInputTask();
+	task = new LinkATask();
 	}else if(x.target.options.selectedIndex == 2){
-	task = new TextAreaTask();
+	task = new LinkATask();
 	}
 
-	view.render(el_add_inflate, task.toHtml(task.emptyToJson()));	
+	view.render(div_add_aug_inflate, task.toHtml(task.emptyToJson()));	
 
 	});
 
@@ -414,13 +395,13 @@ function handleSelectxPath(){
 	//close_edit.setAttribute('class','class_button');
 
 	close_edit.onclick = function(){ 
-  	  el = document.getElementById("div_add_container");
+  	  el = document.getElementById("div_add_aug_container");
  	  el.style.visibility = "hidden";
  	  that.firstChild.selected = true;
  	  document.removeEventListener('dblclick',handleSelectxPath,false);
  	};
 
- 	var div_footer = document.getElementById("div_add_footer");
+ 	var div_footer = document.getElementById("div_add_aug_footer");
  	div_footer.innerHTML="";
 	//Agrego al final los dos botones
 	div_footer.appendChild(save_task);
@@ -442,7 +423,7 @@ function handleSelectxPath(){
 		select_xpath.onclick = function(){ 
 	  var high = new Highlighter();
 
-	  var el = document.getElementById('div_add_container');
+	  var el = document.getElementById('div_add_aug_container');
 	  el.style.visibility = 'hidden';
 	  high.init();
 
@@ -626,6 +607,19 @@ if( arr_ls.length == 0){
   		var i;
         for (i=0;i < arr_ls.length ;i++){
 
+//Hardcodeo para ver si funciona, creo que tengo que modificar la manera en que se instancian las tareas
+
+        	if(arr_ls[i].type == 'LinkATask'){
+			//alert('linkkkk');
+			console.debug('arr_ls[i]');
+
+			var aug_task = new LinkATask(arr_ls[i].id,arr_ls[i].type,xpath,valor,'',0,arr_ls[i].state);
+			console.debug(aug_task);
+			var c_t = Manager.getCurrentPrimitiveTasks();
+			c_t.push(aug_task);
+
+        	}
+
             try{
 			//Esto tambien esta mal, hay que sacarlo de otra manera, se soluciona cuando tenga el objeto JSON correspondiente
             var xpath = arr_ls[i].atributos[1].value;
@@ -644,6 +638,8 @@ if( arr_ls.length == 0){
             }
 
         }
+        
+        console.debug(Manager.getCurrentPrimitiveTasks());
         
         Manager.start();
           
@@ -789,10 +785,62 @@ if( arr_ls.length == 0){
 * @class RConsole
 */
 var RConsole = {
-		/**
+	/**
+	* @method createAddAugContainer
+	*/
+	createAddAugContainer: function(){
+	
+	var div_add_aug_container = document.createElement("div");	
+	div_add_aug_container.id = "div_add_aug_container";
+	div_add_aug_container.style.cssText="visibility: hidden;position:absolute;width:200px;height:auto;top:30%;left:50%;margin-top:-100px;margin-left:-100px;background-color:rgb(225, 218, 185);border: solid black;";
+	//div_editor_container.style.cssText="position:absolute;width:200px;height:200px;top:20%;left:50%;margin-top:-100px;margin-left:-100px;background-color:red";
+	
+
+	var div_add_aug_header = document.createElement("div");	
+	div_add_aug_header.id = "div_add_aug_header";
+	div_add_aug_header.style.cssText="";
+
+    var header_aug_title = document.createTextNode('Add Task');
+	div_add_aug_header.appendChild(header_aug_title);
+
+	var div_select_aug_tasks = document.createElement('div');
+	div_select_aug_tasks.id = 'div_select_aug_tasks';
+
+	var div_add_aug_inflate = document.createElement("div");	
+	div_add_aug_inflate.id = "div_add_aug_inflate";
+
+	var div_add_aug_footer = document.createElement("div");	
+	div_add_aug_footer.id = "div_add_aug_footer";
+	div_add_aug_footer.style.cssText="";
+    
+    // div_consola.style.visibility = "hidden";
+    div_add_aug_container.appendChild(div_add_aug_header);
+    div_add_aug_container.appendChild(div_select_aug_tasks);
+    div_add_aug_container.appendChild(div_add_aug_inflate);
+    div_add_aug_container.appendChild(div_add_aug_footer);
+	//div_consola.appendChild(div_editor);
+
+	//=========================Agrego el Container
+	var el_select_aug_inflate = document.getElementById("div_select_aug_inflate");
+    var elements = new Array();
+    	
+    var option_aug_el = Object.create(optionsElement);
+    	option_aug_el.id = 'id_augmented_task';
+        option_aug_el.label = "Augmented Task";
+        option_aug_el.options[0] = ['Select Task',0]; //deberia ser disabled
+        option_aug_el.options[1] = ['GoToLink ATask',1];
+        option_aug_el.options[2] = ['Another Task',2];
+        console.debug(option_aug_el);
+        elements.push(option_aug_el);
+      	view.render(div_select_aug_tasks, elements);	
+	//==========================
+
+	return div_add_aug_container;
+	}
+	/**
 	* @method createEditionContainer
 	*/
-	 createAddContainer: function(){
+	,createAddContainer: function(){
 	
 	var div_add_container = document.createElement("div");	
 	div_add_container.id = "div_add_container";
@@ -1056,7 +1104,8 @@ var RConsole = {
 		var table_console = this.createTable();
 		var editor_container = this.createEditionContainer();
 		var add_container = this.createAddContainer();
-	 	
+	 	var add_aug_container = this.createAddAugContainer();
+
 	 	container_header.appendChild(stopButton);
 	 	container_header.appendChild(recordButton);
 		container_header.appendChild(playButton);
@@ -1081,6 +1130,7 @@ var RConsole = {
 
 		body.appendChild(editor_container);
 		body.appendChild(add_container);
+		body.appendChild(add_aug_container);
 	 	////console.debug('15. Agrega la pestana show/hide');    	
 		body.appendChild(show_hide); 
     	body.style.marginLeft = "400px";

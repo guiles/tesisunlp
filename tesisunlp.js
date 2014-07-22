@@ -315,6 +315,7 @@ localStorageManager = {
     var arr_ls = JSON.parse(ls);
     var id = arr_ls.length;
     var o = JSON.parse(json_object);
+    console.debug(o)
     o.id = id;
     o.atributos[0].value = id; //----> Parche
     arr_ls.push(o);
