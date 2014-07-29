@@ -808,6 +808,7 @@ function LinkATask(id,link,value,msg,tipo,state){
     this.msg = "LinkATask";
     this.state = state;
     this.id = id;
+    this.link = link;
 }
 LinkATask.prototype = new AugmentedTask(); 
 /**
@@ -949,11 +950,11 @@ LinkATask.prototype.emptyToJson = function(){
     return JSON.stringify(obj_task);
 }
 LinkATask.prototype.execute = function(){
-
-    //window.open('http://www.google.com');
-    var myWindow = window.open("", "MsgWindow", "width=200, height=100");
-    myWindow.document.write("<p>This is 'MsgWindow'. I am 200px wide and 100px tall!</p>");//alert('ejecuto!!!');
-    console.debug('finalizo esta');
+    var aLink = 'http://'+this.link;
+    //window.open(aLink);
+    var myWindow = window.open(aLink, "MsgWindow", "width=200, height=100");
+    //myWindow.document.write("<p>This is 'MsgWindow'. I am 200px wide and 100px tall!</p>");//alert('ejecuto!!!');
+   // console.debug('finalizo esta');
     
     this.finalizo(this.id);
 

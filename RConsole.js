@@ -366,6 +366,11 @@ function handleSelectxPath(){
 	console.debug(j);
 	localStorageManager.insert(j);
 	Recorder.refresh();
+	
+	var el_at = document.getElementById('add_task');
+	el_at.firstChild.selected = true;
+	
+	console.debug(that);
 
 	};
 		
@@ -376,10 +381,8 @@ function handleSelectxPath(){
     //Traigo el select de las tareas y modifico el HTML segun el tipo de tarea
     var el_sel = document.getElementById("id_augmented_task");
 	el_sel.addEventListener('change',function(x){
-	console.debug('change');
 	var task;
-	//console.debug(x.target.options.selectedIndex);
-	if(x.target.options.selectedIndex == 1){ //Si Es FillInputTask
+	if(x.target.options.selectedIndex == 1){ //Si Es LinkATask
 	task = new LinkATask();
 	}else if(x.target.options.selectedIndex == 2){
 	task = new LinkATask();
@@ -394,11 +397,14 @@ function handleSelectxPath(){
 	close_edit.value = "Close";
 	//close_edit.setAttribute('class','class_button');
 
+
+
 	close_edit.onclick = function(){ 
   	  el = document.getElementById("div_add_aug_container");
  	  el.style.visibility = "hidden";
  	  that.firstChild.selected = true;
  	  document.removeEventListener('dblclick',handleSelectxPath,false);
+ 	
  	};
 
  	var div_footer = document.getElementById("div_add_aug_footer");
@@ -610,11 +616,14 @@ if( arr_ls.length == 0){
 //Hardcodeo para ver si funciona, creo que tengo que modificar la manera en que se instancian las tareas
 
         	if(arr_ls[i].type == 'LinkATask'){
-			//alert('linkkkk');
-			console.debug('arr_ls[i]');
+			console.debug('------');
+			//console.debug(arr_ls[i].atributos[1].value);
+			
+			//console.debug('arr_ls[i]');
 
-			var aug_task = new LinkATask(arr_ls[i].id,arr_ls[i].type,xpath,valor,'',0,arr_ls[i].state);
+			var aug_task = new LinkATask(arr_ls[i].id,arr_ls[i].atributos[1].value,xpath,valor,'',0,arr_ls[i].state);
 			console.debug(aug_task);
+			console.debug('------');
 			var c_t = Manager.getCurrentPrimitiveTasks();
 			c_t.push(aug_task);
 
@@ -800,8 +809,11 @@ var RConsole = {
 	div_add_aug_header.id = "div_add_aug_header";
 	div_add_aug_header.style.cssText="";
 
-    var header_aug_title = document.createTextNode('Add Task');
+    var header_aug_title = document.createTextNode('Augmented Tasks');
 	div_add_aug_header.appendChild(header_aug_title);
+
+	var hr_title = document.createElement('hr');
+	div_add_aug_header.appendChild(hr_title);
 
 	var div_select_aug_tasks = document.createElement('div');
 	div_select_aug_tasks.id = 'div_select_aug_tasks';
@@ -826,7 +838,7 @@ var RConsole = {
     	
     var option_aug_el = Object.create(optionsElement);
     	option_aug_el.id = 'id_augmented_task';
-        option_aug_el.label = "Augmented Task";
+        option_aug_el.label = "Aug. Task";
         option_aug_el.options[0] = ['Select Task',0]; //deberia ser disabled
         option_aug_el.options[1] = ['GoToLink ATask',1];
         option_aug_el.options[2] = ['Another Task',2];
