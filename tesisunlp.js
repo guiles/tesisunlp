@@ -487,4 +487,10 @@ var grabando = localStorage.getItem("BPMRECORDING")
 
 //Manager.init();
 
+//Hago draggable a los registros para ordenar
+
+        var table = document.getElementById('table_consola');
+        var tableDnD = new TableDnD();
+        tableDnD.init(table);
+        console.debug(table);
 };	
