@@ -1045,7 +1045,7 @@ var RConsole = {
 		////console.debug('7. Crea el div consola');		
 		var div_consola = document.createElement("div");
 			div_consola.id = "div_consola";		
-			div_consola.style.cssText = "overflow:scroll;    z-index: 300;   position: fixed;        left: 0px;      width: auto;        height: 100%;       border: solid 1px #e1e1e1;      vertical-align: middle;         background: #ffdab9;  text-align: center;";
+			div_consola.style.cssText = "overflow:scroll;    z-index: 300;   position: fixed;        left: 0px;      width: auto;        height: 100%;       border: solid 1px #e1e1e1;      vertical-align: middle;         background: #A2A0A0;  text-align: center;";
 		return div_consola;
 
 	 }
@@ -1066,6 +1066,7 @@ var RConsole = {
 		////console.debug('10. Crea la tabla contenedora de la consola');
 		var table_consola = document.createElement("table")
 		table_consola.id = "table_consola"
+		table_consola.style.cssText = "min-width:auto;font-family: Helvetica,Arial;";
 		return table_consola;
 	 }
 	 ,createShowHide: function(){

@@ -425,7 +425,7 @@ var css_styles = {
 };
 //Agrego los estilos para el plugin
 //@TODO: realizar una clase que maneje y englobe
-var css = " .class_button { background-color: #24890d; border: 0; border-radius: 2px; color: #fff; font-size: 12px; font-weight: 700; padding: 10px 30px 11px; text-transform: uppercase;vertical-align: bottom;} .cssClass{ outline: 0.25em solid #FFFF00;} ";
+var css = " .class_button { background-color: #24890d; border: 0; border-radius: 2px; color: #fff; font-size: 12px; font-weight: 700; padding: 10px 30px 11px; text-transform: uppercase;vertical-align: bottom;} .cssClass{ outline: 0.25em solid #FFFF00;} td{ border-bottom:2px solid #005000;} table{  background-color: #A2AFA0; border:2px solid #005000;border-radius:5px; min-width:323px;font-family: Helvetica,Arial;}";
  var   head = document.head || document.getElementsByTagName('head')[0],
     style = document.createElement('style');
 
@@ -492,5 +492,5 @@ var grabando = localStorage.getItem("BPMRECORDING")
         var table = document.getElementById('table_consola');
         var tableDnD = new TableDnD();
         tableDnD.init(table);
-        console.debug(table);
+        //console.debug(table);
 };	
