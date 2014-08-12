@@ -63,10 +63,21 @@ function getEventSource(evt) {
     }
 }
 
-/**
- * Encapsulate table Drag and Drop in a class. We'll have this as a Singleton
- * so we don't get scoping problems.
- */
+function actualizarOrden(table){
+    
+        var tasks_temp = new Array();
+        //armo el array con el orden indicado ( no se si sera mejor agregar un atributo de orden)
+        var rows = table.tBodies[0].rows; 
+        for (var i=0; i<rows.length; i++) {
+            var id = rows[i].id;
+            var obj_task = localStorageManager.getObject(id);
+            tasks_temp.push(obj_task);
+            
+        }
+        
+        localStorage.setItem("BPM",JSON.stringify(tasks_temp));
+}
+
 function TableDnD() {
     /** Keep hold of the current drag object if any */
     this.dragObject = null;
@@ -80,10 +91,6 @@ function TableDnD() {
     /** Initialise the drag and drop by capturing mouse move events */
     this.init = function(table) {
         this.table = table;
-        console.debug('*------------**');
-        console.debug(table);
-        console.debug('*------------**');
-        //return false;
         var rows = table.tBodies[0].rows; //getElementsByTagName("tr")
         for (var i=0; i<rows.length; i++) {
 			// John Tarr: added to ignore rows that I've added the NoDnD attribute to (Category and Header rows)
@@ -98,8 +105,7 @@ function TableDnD() {
         to do whatever you want, for example use Ajax to update the server */
     this.onDrop = function(table, droppedRow) {
         // Do nothing for now
-        console.debug(table);
-        console.debug(droppedRow);
+        actualizarOrden(table);
     }
 
 	/** Get the position of an element by going up the DOM tree and adding up all the offsets */
@@ -191,3 +197,4 @@ function TableDnD() {
 		return null;
 	}
 }
+

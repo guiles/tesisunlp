@@ -572,6 +572,9 @@ function handleSelectxPath(){
 	 localStorage.setItem("BPMRECORDING",0);
 	 }  
      
+		var table = document.getElementById('table_consola');
+        var tableDnD = new TableDnD();
+        tableDnD.init(table);
 	}
 	/**  
 	* Para de grabar 
@@ -586,7 +589,6 @@ function handleSelectxPath(){
 	 start_record.disabled = false;
      var stop_record = document.getElementById('stop_record');
      stop_record.disabled = true;
-
 	}
 
 	/**  
