@@ -424,7 +424,7 @@ function handleSelectxPath(){
 		select_xpath.type = "button";
 		select_xpath.id = "select_xpath";
 		select_xpath.value = "X";
-		//select_xpath.setAttribute('class','class_button');
+		select_xpath.setAttribute('class','class_button');
 	 	//el.appendChild(select_xpath);
 		select_xpath.onclick = function(){ 
 	  var high = new Highlighter();
@@ -706,7 +706,7 @@ if( arr_ls.length == 0){
 	    var delete_button = document.createElement('input');
 		delete_button.type = "button";
 		delete_button.value = "X";
-		//delete_button.setAttribute('class','class_button');
+		delete_button.setAttribute('class','class_button');
 
 		delete_button.onclick = function(x){ 
 
@@ -727,7 +727,7 @@ if( arr_ls.length == 0){
 		var edit_button = document.createElement('input');
 		edit_button.type = "button";
 		edit_button.value = "E";
-		//edit_button.setAttribute('class','class_button');
+		edit_button.setAttribute('class','class_button');
 		edit_button.onclick = function(){
 		Recorder.editRow(this);
 		};
@@ -982,6 +982,7 @@ var RConsole = {
 	 ,createPlayButton: function(){
 	 	////console.debug('2. crea boton Play');
 		var iPlay_recorder = this.createButton('Play','play_procedure',null);
+		iPlay_recorder.className = "class_button";
 		iPlay_recorder.addEventListener("click", Recorder.clickPlay , false); 
 		return iPlay_recorder;
 	 }
@@ -990,11 +991,13 @@ var RConsole = {
 		////console.debug('3. crea boton Record');
 		var iRecord_recorder = this.createButton('Record','start_record',null);
 		iRecord_recorder.addEventListener("click",Recorder.clickRecord, false); 
+		iRecord_recorder.className = "class_button";
 		return iRecord_recorder;
 	 }
 	 ,createClearButton: function(){
 	 	////console.debug('4. crea boton Clear');
 		var clear = this.createButton('Clear','clear',null);
+		clear.className = "class_button";
 		clear.onclick = function(){
 
 		//localStorage.clear();
@@ -1005,12 +1008,13 @@ var RConsole = {
 	 }
 	 ,createShowLocalStorageButton: function(){
 		var load = document.createElement('input');
+		load.className = "class_button";
 		load.type = "button";
 		load.value = "LS";
 		load.id = "load";
 
 		load.onclick = function(){	
-			console.log("Contenido:");
+		console.log("Contenido:");
 		console.log(JSON.parse(localStorage.getItem("BPM")));
 		console.log('ejecutando:');
 		console.log(localStorage.getItem("BPMEXECUTION"));
@@ -1026,6 +1030,7 @@ var RConsole = {
 
 		////console.debug('5. crea Select Tasks');
 		var sAddTask = document.createElement('select');
+		sAddTask.className = "class_button";
 		sAddTask.setAttribute('id','add_task');
 	 	var j;
 	 	var aOptions=['Add Task','Primitive Task','Augmented Task'];
@@ -1045,7 +1050,7 @@ var RConsole = {
 		////console.debug('7. Crea el div consola');		
 		var div_consola = document.createElement("div");
 			div_consola.id = "div_consola";		
-			div_consola.style.cssText = "overflow:scroll;    z-index: 300;   position: fixed;        left: 0px;      width: auto;        height: 100%;       border: solid 1px #e1e1e1;      vertical-align: middle;         background: #A2A0A0;  text-align: center;";
+			div_consola.style.cssText = "overflow:scroll;z-index: 300;position:fixed;left: 0px;width:auto;height: 100%;border:solid 1px #e1e1e1;vertical-align: middle;background: #A2AFA0;text-align:center;";
 		return div_consola;
 
 	 }
@@ -1075,11 +1080,13 @@ var RConsole = {
 	//Agrego la solapa para mostrar/ocultar
 	var div_pestana = document.createElement("div");
 	div_pestana.id =  "div_pestana"; 
-	div_pestana.style.cssText = "display: inline-block;background: #37abc8;opacity: 0.67;position: fixed;right: 0;bottom: 3.2em;z-index: 100;font-size: 14px;font-family: Helvetica, arial, freesans, clean, sans-serif;" ;
-	
+	//div_pestana.style.cssText = "display: inline-block;background: #37abc8;opacity: 0.67;position: fixed;right: 0;bottom: 3.2em;z-index: 100;font-size: 14px;font-family: Helvetica, arial, freesans, clean, sans-serif;" ;
+	div_pestana.style.cssText = "display: inline-block;background: #A2AFA0;position: fixed;right: 0;bottom: 3.2em;z-index: 100;font-size: 14px;font-family: Helvetica, arial, freesans, clean, sans-serif;" ;
+
 	var input_label = document.createElement("input");
 	input_label.type = "button";
-	input_label.style.cssText = "background-color: #24890d; border: 0; border-radius: 2px; color: #fff; font-size: 12px; font-weight: 700; padding: 10px 30px 11px; text-transform: uppercase;vertical-align: bottom;";
+	//input_label.style.cssText = "background-color: #A2AFA0; border: 0; border-radius: 2px; color: #fff; font-size: 12px; font-weight: 700; padding: 10px 30px 11px; text-transform: uppercase;vertical-align: bottom;";
+	input_label.style.cssText = "background-color: #A2AFA0; border: 0; border-radius: 2px; color: black; font-size: 11px; font-weight: 700; padding: 10px 30px 11px; text-transform: uppercase;vertical-align: bottom;";
 	input_label.value ="show/hide";
 	input_label.id ="toc-label";
 	input_label.onclick = function(){ 

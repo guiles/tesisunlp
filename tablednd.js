@@ -63,7 +63,7 @@ function getEventSource(evt) {
     }
 }
 
-function actualizarOrden(table){
+/*function actualizarOrden(table){
     
         var tasks_temp = new Array();
         //armo el array con el orden indicado ( no se si sera mejor agregar un atributo de orden)
@@ -77,7 +77,7 @@ function actualizarOrden(table){
         
         localStorage.setItem("BPM",JSON.stringify(tasks_temp));
 }
-
+*/
 function TableDnD() {
     /** Keep hold of the current drag object if any */
     this.dragObject = null;
@@ -105,7 +105,7 @@ function TableDnD() {
         to do whatever you want, for example use Ajax to update the server */
     this.onDrop = function(table, droppedRow) {
         // Do nothing for now
-        actualizarOrden(table);
+        localStorageManager.actualizarOrden(table);
     }
 
 	/** Get the position of an element by going up the DOM tree and adding up all the offsets */

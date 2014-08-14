@@ -367,6 +367,22 @@ localStorageManager = {
     localStorage.setItem("BPM",JSON.stringify(array_temp)); 
     return true;
     }
+
+
+    ,actualizarOrden: function(table){
+
+        var tasks_temp = new Array();
+        //armo el array con el orden indicado ( no se si sera mejor agregar un atributo de orden)
+        var rows = table.tBodies[0].rows; 
+        for (var i=0; i<rows.length; i++) {
+            var id = rows[i].id;
+            var obj_task = localStorageManager.getObject(id);
+            tasks_temp.push(obj_task);
+            
+        }
+        
+        localStorage.setItem("BPM",JSON.stringify(tasks_temp));
+    }
 }
 
 
@@ -419,13 +435,17 @@ var write_localStorage = function(task,xPath,value,taskType,state){
 }
 
 window.onload = function(){
+/*
 
+
+
+*/
 var css_styles = {
-	class_button:"background-color: #24890d;border: 0;border-radius: 2px;color: #fff;font-size: 12px;font-weight: 700;padding: 10px 30px 11px;text-transform: uppercase;vertical-align: bottom;"
+	class_button:"background-color:#24890d;border:1px;border-radius:2px;color:#fff;font-size: 8px;font-weight: 700;padding: 10px 30px 11px;text-transform: uppercase;vertical-align: bottom;"
 };
 //Agrego los estilos para el plugin
-//@TODO: realizar una clase que maneje y englobe
-var css = " .class_button { background-color: #24890d; border: 0; border-radius: 2px; color: #fff; font-size: 12px; font-weight: 700; padding: 10px 30px 11px; text-transform: uppercase;vertical-align: bottom;} .cssClass{ outline: 0.25em solid #FFFF00;} td{ border-bottom:2px solid #005000;} table{  background-color: #A2AFA0; border:2px solid #005000;border-radius:5px; min-width:323px;font-family: Helvetica,Arial;}";
+//@TODO: realizar una clase que maneje y englobe //border-radius: 1px;border: 1px;
+var css = " .class_button { background-color: #A2AFA0; border:1px solid; border-color: grey; color: black; font-family: Helvetica, Arial; font-size: 11px; font-weight: 400; padding: 5px 7px 6px; text-transform: uppercase;vertical-align: bottom;} .cssClass{ outline: 0.25em solid #FFFF00;} td{ border-bottom:1px solid #005000;} table{  background-color: #A2AFA0;  min-width:323px;font-family: Helvetica,Arial; font-size: 11px;}"; //border:2px solid #005000;border-radius:5px;
  var   head = document.head || document.getElementsByTagName('head')[0],
     style = document.createElement('style');
 
