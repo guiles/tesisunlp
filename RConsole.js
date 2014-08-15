@@ -702,6 +702,11 @@ if( arr_ls.length == 0){
 	    var td4 = document.createElement('td');
 	    var td5 = document.createElement('td');
 
+		//Pruebo si el doble clic funciona
+		tr.addEventListener("dblclick",function(){
+			Recorder.editRow(this);
+		} ,false);
+
 	 	var text1 = document.createTextNode(text);
 	    var delete_button = document.createElement('input');
 		delete_button.type = "button";
@@ -730,6 +735,7 @@ if( arr_ls.length == 0){
 		edit_button.setAttribute('class','class_button');
 		edit_button.onclick = function(){
 		Recorder.editRow(this);
+		console.debug(this);
 		};
 
 
