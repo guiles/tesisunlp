@@ -2,6 +2,102 @@
  * 
  * @module Tasks
  */
+
+var IdAttribute = {
+    value:''
+    ,html_id:''
+    ,label:''
+    ,getValue: function(){
+     return this.value;
+    }
+    ,setValue: function(value){
+    this.value = value;
+    }
+} 
+var XPathAttribute = {
+    value:''
+    ,htmlId:'xpath_id'
+    ,label:'xPath'
+    ,htmlElement:''
+    ,setValue: function(value){
+        this.value = value;
+    }
+    ,setHtmlId: function(htmlId){
+        this.htmlId = htmlId;
+    }
+    ,setLabel: function(label){
+        this.label = label;
+    }
+    ,getValue: function(){
+        return this.value;
+    }
+    ,getHtmlElement: function(){
+        var input_element = Object.create(inputElement);
+        input_element.label = this.getLabel();
+        input_element.value = this.getValue();
+        input_element.id =   this.getHtmlId();
+            
+       return input_element;
+    }
+    ,getLabel: function(){
+        return this.label;
+    }
+    ,getHtmlId: function(){
+        return this.htmlId;
+    }
+}
+var TipoAttribute = {
+    value:''
+    ,getValue: function(){
+     return this.value;
+    }
+    ,setValue: function(value){
+    this.value = value;
+    }
+}
+var StateAttribute = {
+    value:''
+    ,getValue: function(){
+     return this.value;
+    }
+    ,setValue: function(value){
+    this.value = value;
+    }
+}
+var ValueAttribute = {
+    value:''
+    ,htmlId:'value_id'
+    ,label:'Value'
+    ,htmlElement:''
+    ,setValue: function(value){
+        this.value = value;
+    }
+    ,setHtmlId: function(htmlId){
+        this.htmlId = htmlId;
+    }
+    ,setLabel: function(label){
+        this.label = label;
+    }
+    ,getValue: function(){
+        return this.value;
+    }
+    ,getHtmlElement: function(){
+        var input_element = Object.create(inputElement);
+        input_element.label = this.getLabel();
+        input_element.value = this.getValue();
+        input_element.id =   this.getHtmlId();
+            
+       return input_element;
+    }
+    ,getLabel: function(){
+        return this.label;
+    }
+    ,getHtmlId: function(){
+        return this.htmlId;
+    }
+}
+
+
  /**
  * 
  * PrimitiveTask
@@ -15,6 +111,7 @@ this.value = value;
 this.state = state;
 this.id = id;
 this.msg = "PrimitiveTask"
+this.type = "PrimitiveTask"
 }
 /**
  * 
@@ -39,10 +136,8 @@ PrimitiveTask.prototype.execute = function(){
 console.debug('ejecuto esto');
 
 //Precondiciones
-console.debug('----------------------');
-console.debug(this);
-console.debug('----------------------');
-    var iterator = document.evaluate(this.xPath,document,null,0,null);
+
+    var iterator = document.evaluate(this.xPath.getValue(),document,null,0,null);
     var node = iterator.iterateNext();
     
     if(node){
@@ -52,7 +147,8 @@ console.debug('----------------------');
     node.value= value;
     }else{
         Manager.highlightElement(node)
-        node.value= this.value;   
+        //node.value= this.value;   
+        node.value= this.value.getValue();
     }
     }else{
         return false;
@@ -122,12 +218,13 @@ PrimitiveTask.prototype.toHtml = function(properties){
  * @extends PrimitiveTask
  */
 //aId,xPath,value,aMsg,aTipo,aState
-function FillInputTask(id,xPath,value,msg,tipo,state){
+function FillInputTask(id,xPath,value,tipo,state){
 console.debug('ejecuto tarea INput');
     console.debug('ejecutando:');
     console.debug(localStorage.getItem("BPMEXECUTION"));
     PrimitiveTask.call(this,id,xPath,value,tipo,state);
     this.msg = "FillInputTask";
+    this.type = "FillInputTask";
     this.state = state;
 }
 FillInputTask.prototype = new PrimitiveTask();
@@ -135,39 +232,9 @@ FillInputTask.prototype = new PrimitiveTask();
  * @method toJson
  */
 FillInputTask.prototype.toJson = function(){
-//Aqui armo el objeto JSON segun especifcaciones, que por ahora es igual que JUNIO 20 
-   var obj_task = new Object();
-    obj_task.id = 0 ;    
-    obj_task.type = 'FillInputTask';
-    obj_task.state = 0;
-    obj_task.atributos  = new Array();
 
-    var obj_id = new Object();
-    obj_id.label = 'ID';
-    obj_id.el_type = 'input';
-    obj_id.value = 10;
-    obj_id.id = 'id';
+return JSON.stringify(this);
 
-    //@TEMP Creo objetos - y hardcodeo para ver como funciona
-    //{"label": "xPath","el_type": "input","value": "/html/","id": "id_xpath"}
-    var obj_xpath = new Object();
-    obj_xpath.label = 'xPath';
-    obj_xpath.el_type = 'input';
-    obj_xpath.value = this.xPath;
-    obj_xpath.id = 'id_xpath';
-    //{"label": "valor","el_type": "input","value": "un valor","id": "id_value"}
-    var obj_value = new Object();
-    
-    obj_value.label = 'Valor';
-    obj_value.el_type = 'input';
-    obj_value.value = this.value;
-    obj_value.id = 'id_value';
-
-    obj_task.atributos.push(obj_id);
-    obj_task.atributos.push(obj_xpath);
-    obj_task.atributos.push(obj_value);
-
-    return JSON.stringify(obj_task);
 }
 
 /**
@@ -214,7 +281,7 @@ FillInputTask.prototype.emptyToJson = function(){
 * override
 * @method toHtml
 */
-FillInputTask.prototype.toHtml = function(properties){
+FillInputTask.prototype.NOtoHtml = function(properties){
     //Por ahora le paso las propiedades para inflar, pero la misma tarea tiene que saber que elementos HTML tiene
     var obj_properties = JSON.parse(properties);
     this.elements = [];
@@ -247,6 +314,47 @@ FillInputTask.prototype.toHtml = function(properties){
 
     return this.elements;
 }
+/**
+* override
+* @method toHtml
+*/
+FillInputTask.prototype.toHtml = function(properties){
+    //Por ahora le paso las propiedades para inflar, pero la misma tarea tiene que saber que elementos HTML tiene
+  
+    var array_elementos = new Array();
+    
+    array_elementos.push(this.xPath.getHtmlElement());
+    array_elementos.push(this.value.getHtmlElement());
+    return array_elementos;
+    return false;
+    
+        for (var i = 0; i < obj_properties.atributos.length; i++) {
+            var type_el = obj_properties.atributos[i].el_type;
+            var el_inflator = null;
+            switch(type_el){
+            case 'input':
+            el_inflator = Object.create(inputElement);
+            break;
+            
+            case 'select':
+            el_inflator = Object.create(selectElement);
+            break;
+            
+            default:
+            return false;
+            break;
+            }
+
+        el_inflator.label = obj_properties.atributos[i].label;
+        el_inflator.value = obj_properties.atributos[i].value;
+        el_inflator.id =  obj_properties.atributos[i].id;
+        this.elements.push(el_inflator);  
+
+        }
+
+    return this.elements;
+}
+
 /**
 * @method htmlToJson
 */
@@ -422,51 +530,15 @@ SelectOptionTask.prototype.htmlToJson = function(el_div){
 function TextAreaTask(id,xPath,value,tipo,state){
     PrimitiveTask.call(this,id,xPath,value,tipo,state);
     this.msg = "TextAreaTask";
+    this.type = "TextAreaTask";
+    this.state = state;
 }
 TextAreaTask.prototype = new PrimitiveTask();
 
 TextAreaTask.prototype.toJson = function(){
-//Aqui armo el objeto JSON segun especifcaciones, que por ahora es igual que JUNIO 20 
-   var obj_task = new Object();
-    obj_task.id = 0 ;    
-    obj_task.type = 'TextAreaTask';
-    obj_task.state = 0;
-    obj_task.atributos  = new Array();
 
-    //@TEMP Creo objetos - y hardcodeo para ver como funciona
-    //{"label": "xPath","el_type": "input","value": "/html/","id": "id_xpath"}
-    var obj_xpath = new Object();
-    obj_xpath.label = 'xPath';
-    obj_xpath.el_type = 'input';
-    obj_xpath.value = this.xPath;
-    obj_xpath.id = 'id_xpath';
-    //{"label": "valor","el_type": "input","value": "un valor","id": "id_value"}
-    var obj_value = new Object();
-    
-    obj_value.label = 'Valor';
-    obj_value.el_type = 'input';
-    obj_value.value = this.value;
-    obj_value.id = 'id_value';
-    
-    var obj_id = new Object();
-    obj_id.label = 'ID';
-    obj_id.el_type = 'input';
-    obj_id.value = 0;
-    obj_id.id = 'id';
-  
-  var aobj_id = new Object();
-    aobj_id.label = 'Otro campo';
-    aobj_id.el_type = 'input';
-    aobj_id.value = 'un valor';
-    aobj_id.id = 'un_id';
+return JSON.stringify(this); 
 
-    obj_task.atributos.push(obj_id);
-    obj_task.atributos.push(obj_xpath);
-    obj_task.atributos.push(obj_value);
-    obj_task.atributos.push(aobj_id);
-
-
-return JSON.stringify(obj_task);
 }
 /**
  * @method emptyToJson
@@ -516,7 +588,7 @@ TextAreaTask.prototype.emptyToJson = function(){
 }
 
 
-TextAreaTask.prototype.toHtml = function(properties){
+TextAreaTask.prototype.NOtoHtml = function(properties){
     //Por ahora le paso las propiedades para inflar, pero la misma tarea tiene que saber que elementos HTML tiene
     var obj_properties = JSON.parse(properties);
     
@@ -548,6 +620,15 @@ TextAreaTask.prototype.toHtml = function(properties){
 
     return this.elements;
 }
+
+TextAreaTask.prototype.toHtml = function(properties){
+    
+    var array_elementos = new Array();
+    array_elementos.push(this.xPath.getHtmlElement());
+    array_elementos.push(this.value.getHtmlElement());
+    return array_elementos;
+  }
+
 
 TextAreaTask.prototype.htmlToJson = function(el_div){
 

@@ -51,8 +51,6 @@ var eventoClick = function(event){
 }
 var eventoChange = function(event){
 
-    	////console.debug("Empieza a grabar registroEventoChange");
-    
 		//Temporal, para asignarle si es tarea automatica, deberia ir en la consola
 		var tipo = 0;
 		var el_id = event.target.id;
@@ -61,12 +59,11 @@ var eventoChange = function(event){
 		if(el_id){
 		var sxPath = '//*[@id="'+el_id+'"]';
 		}else{ //Si no tiene ID tengo que ver la manera de sacar el absoluto
-		////console.debug("no tiene id, saco el absoluto, uso el ejemplo de stack");
+
 		var sxPath = Recorder.createXPathFromElement(event.target) ;
-		////console.debug(sxPath);
+
 		}
 
-		//Guardo en el JSON compartido que sirve para el recorder.
 		//Diferencio los tipos de nodos, ahi le envio el tipo de tarea que recolecto.
 		switch(event.target.nodeName)
 		{
@@ -76,66 +73,60 @@ var eventoChange = function(event){
 		o_task.value = el_value;
 		o_task.tipo = tipo;
 		
-		//console.debug('guarda el json');
-		//console.debug(o_task.toJson());
 		localStorageManager.insert(o_task.toJson());
 				
 		Recorder.refresh();
 
 	    break;
 		case 'INPUT':
-		var o_task;
-		//temporal para ver si funciona
-        ////console.debug('entra a input');
-		if(event.target.type=='radio'){ 
-		var obj = new Object();
-		obj.type = "RadioTask";
-		obj.xPath  = sxPath;
-		obj.value = el_value;
-		obj.tipo = tipo;
-		}else if(event.target.type=='checkbox'){
-		var obj = new Object();
-		obj.type = "CheckBoxTask";
-		obj.xPath  = sxPath;
-		obj.value = el_value;
-		obj.tipo = tipo;
-		}else{
-		var obj = new Object();
-		/*obj.type = "FillInputTask";
-		obj.xPath  = sxPath;
-		obj.value = el_value;
-		obj.tipo = tipo;
-*/
-	var	o_task = new FillInputTask();
-		o_task.xPath = sxPath;
-		o_task.value = el_value;
-		o_task.tipo = tipo;
 
-		}
-		///se guarda una tarea nueva //JUNIO 21
-		//console.debug('guarda el json');
-		//console.debug(o_task.toJson());
-		localStorageManager.insert(o_task.toJson());
+		var o_task;
+
+		if(event.target.type=='radio'){ 
+			var obj = new Object();
+			obj.type = "RadioTask";
+			obj.xPath  = sxPath;
+			obj.value = el_value;
+			obj.tipo = tipo;
+			localStorageManager.insert(o_task.toJson());
+		return false;
+		}else if(event.target.type=='checkbox'){
+			var obj = new Object();
+			obj.type = "CheckBoxTask";
+			obj.xPath  = sxPath;
+			obj.value = el_value;
+			obj.tipo = tipo;
+			localStorageManager.insert(o_task.toJson());
+		return false;
+		}else{
+
 		
-		//write_localStorage('FillInputTask',sxPath,el_value,0,0);
+		var xPath = Object.create(XPathAttribute);
+		xPath.setValue(sxPath);
+		var objValue = Object.create(ValueAttribute);
+		objValue.setValue(el_value);
+	
+		var	o_task = new FillInputTask(10,xPath,objValue,0,0);
+		localStorageManager.insert(o_task.toJson());
+		Recorder.refresh();
+		
+		}
+		
 		Recorder.refresh();
 		break;
 	 	case 'TEXTAREA':
 
-		var obj = new Object();
-		obj.type = "TextAreaTask";
-		obj.xPath  = sxPath;
-		obj.value = el_value;
-		obj.tipo = tipo;
+		
+		var xPath = Object.create(XPathAttribute);
+		xPath.setValue(sxPath);
+		var objValue = Object.create(ValueAttribute);
+		objValue.setValue(el_value);
 	
-
-		o_task = new TextAreaTask();
-		o_task.xPath = sxPath;
-		o_task.value = el_value;
-		o_task.tipo = tipo;
+		var	o_task = new TextAreaTask(10,xPath,objValue,0,0);
+		
 		localStorageManager.insert(o_task.toJson());
-	
 		Recorder.refresh();
+		
         break;
 		default:
 
@@ -462,7 +453,7 @@ function handleSelectxPath(){
 	 
 	}
 	/**  
-	* si bien esto es repetir codigo, por ahora lo hago asi hasta que tenga un diseño mas copado, (Ver Imagen del Pizarron)
+	* 
 	* @method Consola.editRow    
 	*/
 	,editRow: function(x) {
@@ -475,23 +466,36 @@ function handleSelectxPath(){
 	edition_container.style.visibility = (edition_container.style.visibility == "visible") ? "hidden" : "visible";
 	  
 	var table_row = x.parentNode.parentNode;  
-	//JUNIO 21
-	//VOy a usar el objeto de cada Tarea para 
-    //Esto es lo que trae del registro seleccionado
+	//Esto es lo que trae del registro seleccionado
 	var edit_task = Object.create(inflater);
     var task = localStorageManager.getObject(table_row.id);
+
+
     if(task.type == 'FillInputTask'){
-    	var iTask = new FillInputTask();
-    	//console.debug('es un objeto FillInputTask');
-    	//console.debug(task);		
-		var x = iTask.toHtml(JSON.stringify(task));
-		//console.debug(x);
+    	var xPath = Object.create(XPathAttribute);
+    	xPath.value = task.xPath.value;
+    	var oValue = Object.create(ValueAttribute);
+    	oValue.value = task.value.value;
+    	
+    	var iTask = new FillInputTask(task.id,xPath,oValue,0,0);
+    	
+		//var x = iTask.toHtml(JSON.stringify(task));
+		var y = iTask.toHtml(); //Agarra las propiedades editables y las devuelve en HTML
+		
+		
     }else if(task.type == 'TextAreaTask'){
 
-		var iTask = new TextAreaTask();
-    	//console.debug('es un objeto TextAreaTask');
-		var x = iTask.toHtml(JSON.stringify(task));
-		////console.debug(x);
+		var xPath = Object.create(XPathAttribute);
+    	xPath.value = task.xPath.value;
+    	
+    	var oValue = Object.create(ValueAttribute);
+    	oValue.value = task.value.value;
+    	
+    	var iTask = new TextAreaTask(task.id,xPath,oValue,0,0);
+    	
+		//var x = iTask.toHtml(JSON.stringify(task));
+		var y = iTask.toHtml(); //Agarra las propiedades editables y las devuelve en HTML
+		
     }else if(task.type == 'SelectOptionTask'){
 
 		var iTask = new SelectOptionTask();
@@ -508,7 +512,8 @@ function handleSelectxPath(){
 		////console.debug(x);
     }
 
-	view.render(el, x);
+	//view.render(el, x);
+	view.render(el, y);
 
 	/*****/
 	var close_edit = document.createElement("input");
@@ -604,6 +609,7 @@ function handleSelectxPath(){
 //NO ME CIERRAAAAA!!!!
 Manager.clearCurrentPrimitiveTasks();
 var arr_ls = Manager.initCurrentPrimitiveTasks();
+
 if( arr_ls.length == 0){
 	//console.debug('no hay mas tareas');
 	localStorage.setItem("BPMEXECUTION",0);
@@ -611,51 +617,47 @@ if( arr_ls.length == 0){
 }
 
 //=================================================
-
-  		var i;
+		
+  		var i; //Recorro el array de tareas
         for (i=0;i < arr_ls.length ;i++){
-
-//Hardcodeo para ver si funciona, creo que tengo que modificar la manera en que se instancian las tareas
+			
+			//Hardcodeo para ver si funciona, creo que tengo que modificar la manera en que se instancian las tareas
 
         	if(arr_ls[i].type == 'LinkATask'){
-			console.debug('------');
-			//console.debug(arr_ls[i].atributos[1].value);
 			
-			//console.debug('arr_ls[i]');
-
 			var aug_task = new LinkATask(arr_ls[i].id,arr_ls[i].atributos[1].value,xpath,valor,'',0,arr_ls[i].state);
-			console.debug(aug_task);
-			console.debug('------');
+			
 			var c_t = Manager.getCurrentPrimitiveTasks();
 			c_t.push(aug_task);
 
         	}
 
             try{
-			//Esto tambien esta mal, hay que sacarlo de otra manera, se soluciona cuando tenga el objeto JSON correspondiente
-            var xpath = arr_ls[i].atributos[1].value;
-            var valor = arr_ls[i].atributos[2].value;
+
+    		//Instancio xPath y Value (wrappers de atributos)
+    		var xPath = Object.create(XPathAttribute); 
+    		xPath.setValue(arr_ls[i].xPath.value);
+			var value = Object.create(ValueAttribute); 
+    		value.setValue(arr_ls[i].value.value);
+
             }catch(err){
-            //////console.debug('error atributos');
-            }
-            //Agrego la tarea y el objeto se encarga de ejecutar lo que sea, con la configuracion que sea
+            	console.log('error atributos');
+            }            
 
         	try{
             
-            Manager.addPrimitiveTask(arr_ls[i].id,arr_ls[i].type,xpath,valor,'',0,arr_ls[i].state);
+            Manager.addPrimitiveTask(arr_ls[i].id,arr_ls[i].type,xPath,value,0,arr_ls[i].state);
         
             }catch(err){
-            	//////console.debug(err);
+            	console.log(err);
             }
 
         }
         
-        console.debug(Manager.getCurrentPrimitiveTasks());
+        //console.debug(Manager.getCurrentPrimitiveTasks());
         
         Manager.start();
           
-          
-
 	}
 	/**  
 	* Actualiza la consola con el localStorage 
@@ -682,6 +684,8 @@ if( arr_ls.length == 0){
 				//////console.debug(err);
 			}
 			
+			console.debug('escribe esto');
+			console.debug(ls_tasks);
              this.writer(arr_tasks[i].id,arr_tasks[i].type,-1);
            }
 	}
